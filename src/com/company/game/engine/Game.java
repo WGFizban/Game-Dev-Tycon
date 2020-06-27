@@ -30,10 +30,15 @@ public class Game {
     //testowe projekty
     LocalDate allegroTermin = LocalDate.of(2020, 1, 20);
     Integer[] days = new Integer[]{2, 5, 3, 7, 8, 0};
+    Integer[] testdays = new Integer[]{1, 1, 1, 0, 1, 0};
+    Integer[] readydays = new Integer[]{0, 0, 0, 0, 0, 0};
+
     GameProject allegro1 = new GameProject("Nowe allegro", ProjectComplexity.EASY, LocalDate.of(2020, 1, 20), 100.00, 500.00, 7, days);
-    GameProject allegro2 = new GameProject("Nowe allegro", ProjectComplexity.HARD, LocalDate.of(2020, 1, 20), 100.00, 500.00, 7, days);
+    GameProject allegro2 = new GameProject("Nowe allegro", ProjectComplexity.EASY, LocalDate.of(2020, 1, 20), 100.00, 500.00, 7, readydays);
     GameProject allegro3 = new GameProject("Nowe allegro", ProjectComplexity.MIDDLE, LocalDate.of(2020, 1, 20), 100.00, 500.00, 7, days);
     GameProject allegro4 = new GameProject("Nowe allegro", ProjectComplexity.MIDDLE, LocalDate.of(2020, 1, 20), 100.00, 500.00, 7, days);
+    GameProject proj1 = new GameProject("Mini rozszerzenie sklepu", ProjectComplexity.EASY, LocalDate.of(2020, 2, 20), 100.00, 1000.00, 2, testdays);
+
 
     //testowi klienci
     Client client1 = new Client("Jan", "Luzacki", ClientCharacter.LUZAK);
@@ -57,7 +62,7 @@ public class Game {
     private void setAvailableProject() {
         availableProject.add(allegro1);
         availableProject.add(allegro2);
-        availableProject.add(allegro3);
+        availableProject.add(proj1);
     }
 
     public void checkCash() {
@@ -76,6 +81,7 @@ public class Game {
     public void setProjectToClient() {
         //możliwe dodanie z listy dowolnych projektów
         client1.addProject(availableProject.get(0));
+        client1.addProject(proj1);
         client2.addProject(allegro2);
         client3.addProject(allegro3);
         client4.addProject(allegro4);
@@ -114,18 +120,26 @@ public class Game {
             System.out.println(i + " " + project);
         }
         if (projMenu.selectOptions() == 0) {
-            System.out.println("Podaj numer projektu który chcesz wybrać: ");
+
+            System.out.print("Podaj numer projektu który chcesz wybrać: ");
             int choice = input.nextInt();
 
-            //logika czy można dodać projekt  {
-            //
-            //
-            //}
+            if (canAddProject(availableProject.get(choice), players.get(0))) {
+                players.get(0).addProject(availableProject.get(choice));
+                availableProject.remove(choice);
+                System.out.println("Do końca dnia cieszysz się z podpisanej umowy i nic nie robisz! \n");
+                endDay();
+            } else {
+                System.out.println("Nie możesz podjąć się tego projektu");
+                showAvailableProject();
+            }
 
-            players.get(0).addProject(availableProject.get(choice));
-            availableProject.remove(choice);
-        }
-        mainAction(dayMenu.selectOptions());
+        } else mainAction(dayMenu.selectOptions());
+    }
+
+    //logika czy można dodać projekt
+    private boolean canAddProject(GameProject project, Player player) {
+        return !project.complexity.toString().equals("Skomplikowany") || player.myEmployee.size() != 0;
     }
 
 
@@ -135,13 +149,19 @@ public class Game {
     }
 
     private void goProgramming() throws InterruptedException {
-        if (players.get(0).hasProject()) {
+        if (players.get(0).allProjectsReady()) {
+            System.out.println("Wszystkie Twoje projekty są gotowe. Pomyśl nad inną opcją.");
+            mainAction(dayMenu.selectOptions());
+
+        }
+        else if (players.get(0).hasProject()) {
             players.get(0).programmingDay();
             endDay();
         } else {
             System.out.println("Nie masz żadnych projektów nad którymi możesz pracować. Zacznij pracę nad nowym projektem.");
             mainAction(dayMenu.selectOptions());
         }
+
     }
 
     private void endDay() {

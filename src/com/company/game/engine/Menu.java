@@ -19,12 +19,12 @@ public class Menu {
 
     public int selectOptions() {
         showOnly();
-        System.out.println("Którą opcję wybierasz?");
+        System.out.print("Którą opcję wybierasz? Opcja: ");
 
 
         int choice = input.nextInt();
-        while (choice > menuOptions.length || choice < 0) {
-            System.out.println("Nie ma takiej opcji. Podaj poprawną opcje");
+        while (choice >= menuOptions.length || choice < 0) {
+            System.out.print("Nie ma takiej opcji. Podaj poprawną opcje. Opcja: ");
             choice=input.nextInt();
         }
         return choice;

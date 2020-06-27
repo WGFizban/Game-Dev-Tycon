@@ -19,9 +19,8 @@ public class Main {
         System.out.println("Witaj w Game dev Tycon " + myGame.players.get(0).nickName);
         System.out.println("Zaraz rozpocznie się Twoja przygoda. Zaczniesz 1 stycznia 2020r. Twoja początkowa pensja: " + myGame.players.get(0).getCash() + "\n" +
                 "Podejmuj mądre decyzje i nie zbankrutuj. Powodzenia!");
-        //test dla gracza
-        //myGame.players.get(0).addProject(myGame.availableProject.get(1));
-
+        //testy
+        //myGame.availableProject.get(1).isReady();
 
         try {
             Thread.sleep(1);

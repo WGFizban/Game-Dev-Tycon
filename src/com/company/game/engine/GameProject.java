@@ -3,14 +3,15 @@ package com.company.game.engine;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
+
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class GameProject {
     public String projectName;
     public ProjectComplexity complexity;
     static final String [] TECHNOLOGY = {"front-end","backend","baza danych","mobile","wordpress","prestashop"};
-    Map<String,Integer> daysForTechnology = new HashMap<>();
+    Map<String,Integer> daysForTechnology = new LinkedHashMap<>();
 
     public boolean ready;
     DateTimeFormatter formatDate = DateTimeFormatter.ofPattern("E dd.MM.yyyy");
@@ -38,8 +39,15 @@ public class GameProject {
         }
     }
 
+    public void isReady() {
+        for (String s : TECHNOLOGY) {
+            if (daysForTechnology.get(s) > 0) {
+                ready = false;
+                break;
+            } else ready = true;
+        }
 
-
+    }
 
     @Override
     public String toString() {
