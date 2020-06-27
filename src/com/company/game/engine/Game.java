@@ -12,26 +12,28 @@ public class Game {
     LocalDate currentDay;
     DateTimeFormatter formatDate = DateTimeFormatter.ofPattern("E dd.MM.yyyy");
     public boolean gameIsOn;
-    Scanner scan = new Scanner(System.in);
+    Scanner input = new Scanner(System.in);
     public List<Player> players = new ArrayList<>();
     public List<GameProject> availableProject = new ArrayList<>();
 
     //tworzenie menu
-    String[] dayOptions = {"Programuj","Zobacz dostępne projekty","Zobacz moje projekty", "Szukaj klientów",  "Testuj kody", "Oddaj projekt", "Zarządzaj pracownikami", "Rozlicz urzędy"};
+    String[] dayOptions = {"Programuj", "Zobacz dostępne projekty", "Zobacz moje projekty", "Szukaj klientów", "Testuj kody", "Oddaj projekt", "Zarządzaj pracownikami", "Rozlicz urzędy", "Wyjdź z programu"};
     String[] testOptions = {"Testuj swój kod", "Testuj kod pracowników", "testuj kod współpracowników"};
-    String[] emploptions = {"Zatrudnij pracownika", "Zwolnij pracownika"};
+    String[] projOptions = {"Wybierz projekt", "Wróć do menu"};
+    String[] emplOptions = {"Zatrudnij pracownika", "Zwolnij pracownika"};
     Menu dayMenu = new Menu(dayOptions);
     Menu testMenu = new Menu(testOptions);
-    Menu emplMenu = new Menu(emploptions);
+    Menu emplMenu = new Menu(emplOptions);
+    Menu projMenu = new Menu(projOptions);
 
 
     //testowe projekty
     LocalDate allegroTermin = LocalDate.of(2020, 1, 20);
     Integer[] days = new Integer[]{2, 5, 3, 7, 8, 0};
-    GameProject allegro1 = new GameProject("Nowe allegro", ProjectComplexity.LATWY, LocalDate.of(2020, 1, 20), 100.00, 500.00, 7, days);
-    GameProject allegro2 = new GameProject("Nowe allegro", ProjectComplexity.LATWY, LocalDate.of(2020, 1, 20), 100.00, 500.00, 7, days);
-    GameProject allegro3 = new GameProject("Nowe allegro", ProjectComplexity.LATWY, LocalDate.of(2020, 1, 20), 100.00, 500.00, 7, days);
-    GameProject allegro4 = new GameProject("Nowe allegro", ProjectComplexity.LATWY, LocalDate.of(2020, 1, 20), 100.00, 500.00, 7, days);
+    GameProject allegro1 = new GameProject("Nowe allegro", ProjectComplexity.EASY, LocalDate.of(2020, 1, 20), 100.00, 500.00, 7, days);
+    GameProject allegro2 = new GameProject("Nowe allegro", ProjectComplexity.HARD, LocalDate.of(2020, 1, 20), 100.00, 500.00, 7, days);
+    GameProject allegro3 = new GameProject("Nowe allegro", ProjectComplexity.MIDDLE, LocalDate.of(2020, 1, 20), 100.00, 500.00, 7, days);
+    GameProject allegro4 = new GameProject("Nowe allegro", ProjectComplexity.MIDDLE, LocalDate.of(2020, 1, 20), 100.00, 500.00, 7, days);
 
     //testowi klienci
     Client client1 = new Client("Jan", "Luzacki", ClientCharacter.LUZAK);
@@ -40,20 +42,16 @@ public class Game {
     Client client4 = new Client("Artur", "Gzyms", ClientCharacter.LUZAK);
 
 
-
-
-
-
-
     public void startNewGame() {
         gameIsOn = true;
         System.out.println("Podaj Nick dla Twojego gracza");
-        Player player1 = new Player(scan.nextLine());
+        Player player1 = new Player(input.nextLine());
         currentDay = START_DATE;
         players.add(player1);
         //poczatkowe ustawienia - później moze odpowiedni generator
-        setProjectToClient();
         setAvailableProject();
+        setProjectToClient();
+
     }
 
     private void setAvailableProject() {
@@ -73,26 +71,26 @@ public class Game {
         System.out.println("Jest " + formatDate.format(currentDay));
         Thread.sleep(1);
         mainAction(dayMenu.selectOptions());
-
     }
 
     public void setProjectToClient() {
-        client1.addProject(allegro1);
+        //możliwe dodanie z listy dowolnych projektów
+        client1.addProject(availableProject.get(0));
         client2.addProject(allegro2);
         client3.addProject(allegro3);
         client4.addProject(allegro4);
     }
+
     public void mainAction(int action) throws InterruptedException {
-        switch (action){
+        switch (action) {
             case 0:
-                players.get(0).programmingDay();
-                endDay();
+                goProgramming();
                 break;
             case 1:
                 showAvailableProject();
                 break;
             case 2:
-                players.get(0).showProject();
+                showPlayerProject();
                 break;
             case 3:
 
@@ -105,21 +103,48 @@ public class Game {
                 break;
             case 7:
                 break;
-
-        }
-
-
-    }
-
-    private void endDay() throws InterruptedException {
-        currentDay=currentDay.plusDays(1);
-        newDay();
-    }
-
-    private void showAvailableProject() {
-        for (GameProject project : availableProject) {
-            System.out.println(project);
+            default:
+                gameIsOn = false;
         }
     }
 
+    private void showAvailableProject() throws InterruptedException {
+        for (int i = 0; i < availableProject.size(); i++) {
+            GameProject project = availableProject.get(i);
+            System.out.println(i + " " + project);
+        }
+        if (projMenu.selectOptions() == 0) {
+            System.out.println("Podaj numer projektu który chcesz wybrać: ");
+            int choice = input.nextInt();
+
+            //logika czy można dodać projekt  {
+            //
+            //
+            //}
+
+            players.get(0).addProject(availableProject.get(choice));
+            availableProject.remove(choice);
+        }
+        mainAction(dayMenu.selectOptions());
+    }
+
+
+    private void showPlayerProject() throws InterruptedException {
+        players.get(0).showProject();
+        mainAction(dayMenu.selectOptions());
+    }
+
+    private void goProgramming() throws InterruptedException {
+        if (players.get(0).hasProject()) {
+            players.get(0).programmingDay();
+            endDay();
+        } else {
+            System.out.println("Nie masz żadnych projektów nad którymi możesz pracować. Zacznij pracę nad nowym projektem.");
+            mainAction(dayMenu.selectOptions());
+        }
+    }
+
+    private void endDay() {
+        currentDay = currentDay.plusDays(1);
+    }
 }

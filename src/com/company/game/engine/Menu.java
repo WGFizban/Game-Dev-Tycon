@@ -11,7 +11,6 @@ public class Menu {
     }
 
     public void showOnly() {
-        System.out.println("Twoje opcje do wyboru są następujące: \n");
         for (int i = 0; i < menuOptions.length; i++) {
             String options = menuOptions[i];
             System.out.println(i + " " + options);
@@ -20,14 +19,15 @@ public class Menu {
 
     public int selectOptions() {
         showOnly();
-        System.out.println("Co wybierasz?");
+        System.out.println("Którą opcję wybierasz?");
 
-//        testInput:
-//        while (input.nextInt() > menuOptions.length || input.nextInt() < 0) {
-//            System.out.println("Nie ma takiej opcji. Podaj poprawną opcje");
-//            continue testInput;
-//        }
-        return input.nextInt();
+
+        int choice = input.nextInt();
+        while (choice > menuOptions.length || choice < 0) {
+            System.out.println("Nie ma takiej opcji. Podaj poprawną opcje");
+            choice=input.nextInt();
+        }
+        return choice;
     }
 
 

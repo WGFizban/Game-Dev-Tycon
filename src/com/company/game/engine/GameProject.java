@@ -2,6 +2,7 @@ package com.company.game.engine;
 
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,6 +13,7 @@ public class GameProject {
     Map<String,Integer> daysForTechnology = new HashMap<>();
 
     public boolean ready;
+    DateTimeFormatter formatDate = DateTimeFormatter.ofPattern("E dd.MM.yyyy");
 
 
     public void setOwner(Client owner) {
@@ -36,17 +38,14 @@ public class GameProject {
         }
     }
 
+
+
+
     @Override
     public String toString() {
-        return "Gameproject{" +
-                "Nazwa" + projectName + '\'' +
-                ", złożoność" + complexity + '\'' +
-                ", Czas poszczególnych tehnologi"+daysForTechnology+
-                ", właściciel " + owner.firstName + " " +owner.lastName+
-                ", data zakończenia " + deadLine +
-                ", kara za niewykonanie" + penalty +
-                ", spodziewany przychód " + reward +
-                ", opóźnienie wysłania pieniedzy " + timeOfReward +
-                '}';
+        return "Projekt "+projectName+" o złożoności  "+complexity+ ". Właściciel "+owner.firstName+" "+owner.lastName+"\n"+
+                "Termin wykonania: "+formatDate.format(deadLine)+" "+" Stan gotowości: "+ready+"\n"+
+                "Technologie i czas "+daysForTechnology+"\n"+
+                "Spodziewana nagroda "+reward+" po "+timeOfReward+ " dniach roboczych od ukończenia. Kara: "+penalty+"\n";
     }
 }

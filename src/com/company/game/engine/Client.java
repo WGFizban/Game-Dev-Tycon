@@ -22,14 +22,13 @@ public class Client {
 
         if (project != null) project.setOwner(this);
         this.myProjects.add(project);
-
     }
 
     @Override
     public String toString() {
-        return "Client{" +
-                "firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
+        return "Klient {" +
+                "imię='" + firstName + '\'' +
+                ", nazwisko='" + lastName + '\'' +
                 '}';
     }
 }

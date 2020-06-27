@@ -1,5 +1,6 @@
 package com.company.game.engine;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Player {
@@ -7,8 +8,8 @@ public class Player {
 
     public String nickName;
     private Double cash;
-    public List<Employee> myEmployee;
-    List<GameProject> myProjects;
+    public List<Employee> myEmployee = new ArrayList<>();
+    public List<GameProject> myProjects = new ArrayList<>();
 
     public Player(String nickName) {
         this.nickName = nickName;
@@ -26,12 +27,24 @@ public class Player {
 
 
     public void showProject() {
-        if (myProjects == null) System.out.println("Aktualnie nie masz żadnych projektów");
+        if (myProjects.size() == 0) System.out.println("Aktualnie nie masz żadnych projektów \n");
         else {
             System.out.println(myProjects);
         }
     }
 
     public void programmingDay() {
+        System.out.println("Spędzasz dzień na programowaniu");
     }
+
+    public boolean hasProject() {
+        return myProjects.size() > 0;
+    }
+
+    public void addProject(GameProject project) {
+        this.myProjects.add(project);
+        System.out.println("Pomyślnie dodałeś projekt " + project.projectName + " do swoich zleceń");
+
+    }
+
 }
