@@ -23,7 +23,7 @@ public class Game {
     public List<GameProject> availableProject = new ArrayList<>();
 
     //tworzenie menu
-    String[] dayOptions = {"Programuj", "Zobacz dostępne projekty", "Zobacz moje projekty", "Szukaj klientów", "Testuj kody", "Oddaj projekt", "Zarządzaj pracownikami", "Rozlicz urzędy", "Wyjdź z programu"};
+    String[] dayOptions = {"Programuj", "Zobacz dostępne projekty", "Zobacz moje projekty", "Szukaj klientów/projektów", "Testuj kody", "Oddaj projekt", "Zarządzaj pracownikami", "Rozlicz urzędy", "Wyjdź z programu"};
     String[] testOptions = {"Testuj swój kod", "Testuj kod pracowników", "testuj kod współpracowników"};
     String[] projOptions = {"Wybierz projekt", "Wróć do menu"};
     String[] emplOptions = {"Zatrudnij pracownika", "Zwolnij pracownika"};
@@ -76,7 +76,7 @@ public class Game {
 
 
     public void newDay() throws InterruptedException {
-        System.out.println("\nJest " + formatDate.format(currentDay) + "\n" + "Twój stan konta: " + players.get(0).getCash() + "\n");
+        System.out.println("\nJest " + formatDate.format(currentDay) + "\n" + "Twój stan konta: " + players.get(0).getCash());
         mainAction(dayMenu.selectOptions());
     }
 
@@ -90,6 +90,7 @@ public class Game {
     }
 
     public void mainAction(int action) throws InterruptedException {
+        System.out.println();
         switch (action) {
             case 0:
                 goProgramming();
@@ -101,7 +102,7 @@ public class Game {
                 showPlayerProject();
                 break;
             case 3:
-                endDay();
+                searchNewProject();
                 break;
             case 4:
                 break;
@@ -115,6 +116,15 @@ public class Game {
             default:
                 gameIsOn = false;
         }
+    }
+
+    private void searchNewProject() {
+        if(players.get(0).dayForLookingClient<5){
+        players.get(0).dayForLookingClient++;
+        System.out.println("Dzisiaj cały dzień poszukujesz nowych zleceń w internecie. Do znalezienia projektu potrzeba jeszcze " + (5-players.get(0).dayForLookingClient) + " wywołania.");
+        endDay();
+        }
+
     }
 
     private void payOfficialFees() throws InterruptedException {
@@ -150,7 +160,7 @@ public class Game {
                 if (canAddProject(availableProject.get(choice), players.get(0))) {
                     players.get(0).addProject(availableProject.get(choice));
                     availableProject.remove(choice);
-                    System.out.println("Do końca dnia cieszysz się z podpisanej umowy i nic nie robisz! \n");
+                    System.out.println("Do końca dnia cieszysz się z podpisanej umowy i nic nie robisz!");
                     endDay();
                 } else {
                     System.out.println("Nie możesz podjąć się tego projektu");
@@ -196,31 +206,39 @@ public class Game {
         }
     }
 
-    private void endDay() {
-        checkGameDuration(currentDay.plusDays(1));
-        currentDay = currentDay.plusDays(1);
+
+
+    private void checkNewProjeckt() {
+        if(players.get(0).dayForLookingClient==5){
+            players.get(0).dayForLookingClient=0;
+            addProjectToAvailable(allegro4);
+            System.out.println("\nZnalezłeś nowy projekt. Sprawdź go jutro w dostępnych zleceniach!");
+        }
+    }
+
+    //przygotowanie do dodawania projektów
+    private void addProjectToAvailable(GameProject proj) {
+        availableProject.add(proj);
     }
 
 
     public void checkGameDuration(LocalDate nextDate) {
-
         checkZus(nextDate.getMonthValue());
         checkCash();
     }
-
 
     private void checkZus(int nextMonth) {
         int lastTermin = currentDay.lengthOfMonth() - currentDay.getDayOfMonth();
         //Awaryjna przypominajka dla gracza
         if (lastTermin == 2) {
-            System.out.println("OSTRZEŻENIE! Dwa dni do końca miesiąca. Jeśli nie poświęcisz wymaganych dni: " + (2 - players.get(0).countFeePerMonth) + " na rozliczenia z urzędami przegrasz!");
+            System.out.println("\nOSTRZEŻENIE! Dwa dni do końca miesiąca. Jeśli nie poświęcisz wymaganych dni: " + (2 - players.get(0).countFeePerMonth) + " na rozliczenia z urzędami przegrasz!");
         }
         if (!(nextMonth == currentDay.getMonthValue()) && players.get(0).countFeePerMonth < 2) {
-            System.out.println("W tym miesiącu zapomniałeś dwukrotnie rozliczyś się z urzędami. Po kontroli ZUS zamykasz firmę z długami.");
+            System.out.println("\nW tym miesiącu zapomniałeś dwukrotnie rozliczyś się z urzędami. Wpada kontrola i zamykasz firmę z długami.");
             players.get(0).setCash(0.0);
         } else if ((!(nextMonth == currentDay.getMonthValue())) && players.get(0).countFeePerMonth == 2) {
             players.get(0).countFeePerMonth = 0;
-            System.out.println("Dobrze że pamiętałeś o Zus :) ");
+            System.out.println("\nRozpoczyna się nowy miesiąc. Dobrze że pamiętałeś o Zus :) ");
         }
 
     }
@@ -228,9 +246,14 @@ public class Game {
     public void checkCash() {
         if (players.get(0).getCash() <= 0) {
             gameIsOn = false;
-            System.out.println("Właśnie zbankrotowałeś. Koniec Gry!!!");
+            System.out.println("Właśnie zbankrutowałeś. Koniec Gry!!!");
         }
     }
 
+    private void endDay() {
+        checkGameDuration(currentDay.plusDays(1));
+        checkNewProjeckt();
+        currentDay = currentDay.plusDays(1);
+    }
 
 }

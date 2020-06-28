@@ -73,7 +73,7 @@ public class Player {
 
     public void addProject(GameProject project) {
         this.myProjects.add(project);
-        System.out.println("Pomyślnie dodałeś projekt " + project.projectName + " do swoich zleceń");
+        System.out.println("\nPomyślnie dodałeś projekt " + project.projectName + " do swoich zleceń");
 
     }
 

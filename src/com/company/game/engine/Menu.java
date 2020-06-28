@@ -11,6 +11,7 @@ public class Menu {
     }
 
     public void showOnly() {
+        System.out.println();
         for (int i = 0; i < menuOptions.length; i++) {
             String options = menuOptions[i];
             System.out.println(i + " " + options);
