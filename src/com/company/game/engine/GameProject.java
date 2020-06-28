@@ -49,6 +49,7 @@ public class GameProject {
 
     }
 
+
     @Override
     public String toString() {
         return "Projekt "+projectName+" o złożoności  "+complexity+ ". Właściciel "+owner.firstName+" "+owner.lastName+"\n"+
