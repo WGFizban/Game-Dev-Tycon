@@ -8,19 +8,20 @@ import java.util.Scanner;
 
 public class Game {
 
-    //data rozpoczęcia gry
-    static final LocalDate START_DATE = LocalDate.of(2020, 1, 27);
-    // zmienna ważna przy szukaniu nowych projektów
-    int daysForSearch = 0;
-    //ilość rozliczeń w miesiącu i dodatkowa pamięć aktualnego miesiąca
+    //data rozpoczęcia gry i ilosc dostepnych projektów
+    static final LocalDate START_DATE = LocalDate.of(2020, 1, 1);
+    static final int START_AVAILABLE_PROJECTS=3;
 
     LocalDate currentDay;
     DateTimeFormatter formatDate = DateTimeFormatter.ofPattern("E dd.MM.yyyy");
 
+    Generator gen = new Generator();
     public boolean gameIsOn;
+
     Scanner input = new Scanner(System.in);
     public List<Player> players = new ArrayList<>();
     public List<GameProject> availableProject = new ArrayList<>();
+    public List<Client> allClient = new ArrayList<>();
 
     //tworzenie menu
     String[] dayOptions = {"Programuj", "Zobacz dostępne projekty", "Zobacz moje projekty", "Szukaj klientów/projektów", "Testuj kody", "Oddaj projekt", "Zarządzaj pracownikami", "Rozlicz urzędy", "Wyjdź z programu"};
@@ -33,24 +34,6 @@ public class Game {
     Menu projMenu = new Menu(projOptions);
 
 
-    //testowe projekty
-    LocalDate allegroTermin = LocalDate.of(2020, 2, 1);
-    Integer[] days = new Integer[]{2, 5, 3, 7, 8, 0};
-    Integer[] testdays = new Integer[]{1, 1, 1, 0, 1, 0};
-    Integer[] readydays = new Integer[]{1, 0, 0, 0, 0, 0};
-
-    GameProject allegro1 = new GameProject("Nowe allegro", ProjectComplexity.EASY, LocalDate.of(2020, 1, 20), 100.00, 500.00, 7, days);
-    GameProject allegro2 = new GameProject("Nowe allegro", ProjectComplexity.EASY, LocalDate.of(2020, 1, 20), 100.00, 500.00, 7, readydays);
-    GameProject allegro3 = new GameProject("Nowe allegro", ProjectComplexity.MIDDLE, LocalDate.of(2020, 1, 20), 100.00, 500.00, 7, days);
-    GameProject allegro4 = new GameProject("Nowe allegro", ProjectComplexity.MIDDLE, LocalDate.of(2020, 1, 20), 100.00, 500.00, 7, days);
-    GameProject proj1 = new GameProject("Mini rozszerzenie sklepu", ProjectComplexity.EASY, LocalDate.of(2020, 2, 20), 100.00, 1000.00, 2, testdays);
-
-
-    //testowi klienci
-    Client client1 = new Client("Jan", "Luzacki", ClientCharacter.LUZAK);
-    Client client2 = new Client("Alex", "Prosty", ClientCharacter.SKRWL);
-    Client client3 = new Client("Mark", "Wymiata", ClientCharacter.WYMAGAJACY);
-    Client client4 = new Client("Artur", "Gzyms", ClientCharacter.LUZAK);
 
 
     public void startNewGame(Player player) {
@@ -59,19 +42,22 @@ public class Game {
         gameIsOn = true;
         currentDay = START_DATE;
 
-        //poczatkowe ustawienia - później moze odpowiedni generator
-        setAvailableProject();
-        setProjectToClient();
+        //poczatkowe ustawienia
+        setStartProporties();
         //ekran powitalny
         System.out.println("Witaj w Game dev Tycon " + players.get(0).nickName);
         System.out.println("Zaraz rozpocznie się Twoja przygoda. Zaczniesz 1 stycznia 2020r. Twoja początkowa pensja: " + players.get(0).getCash() +
                 "\nPodejmuj mądre decyzje i nie zbankrutuj. Powodzenia!");
     }
 
-    private void setAvailableProject() {
-        availableProject.add(allegro1);
-        availableProject.add(allegro2);
-        availableProject.add(proj1);
+    private void setStartProporties() {
+
+        for (int i = 0; i <START_AVAILABLE_PROJECTS ; i++) {
+            availableProject.add(gen.getRandomGameProject(START_DATE));
+            allClient.add(gen.getRandomClient());
+        }
+        gen.randomAddProjectToClient(availableProject,allClient);
+
     }
 
 
@@ -80,20 +66,13 @@ public class Game {
         mainAction(dayMenu.selectOptions());
     }
 
-    public void setProjectToClient() {
-        //możliwe dodanie z listy dowolnych projektów ważne dla póżniejszego generatora
-        client1.addProject(availableProject.get(0));
-        client1.addProject(proj1);
-        client2.addProject(allegro2);
-        client3.addProject(allegro3);
-        client4.addProject(allegro4);
-    }
+
 
     public void mainAction(int action) throws InterruptedException {
         System.out.println();
         switch (action) {
             case 0:
-                goProgramming();
+                goProgrammingPlayer();
                 break;
             case 1:
                 showAvailableProject();
@@ -119,10 +98,10 @@ public class Game {
     }
 
     private void searchNewProject() {
-        if(players.get(0).dayForLookingClient<5){
-        players.get(0).dayForLookingClient++;
-        System.out.println("Dzisiaj cały dzień poszukujesz nowych zleceń w internecie. Do znalezienia projektu potrzeba jeszcze " + (5-players.get(0).dayForLookingClient) + " wywołania.");
-        endDay();
+        if (players.get(0).dayForLookingClient < 5) {
+            players.get(0).dayForLookingClient++;
+            System.out.println("Dzisiaj cały dzień poszukujesz nowych zleceń w internecie. Do znalezienia projektu potrzeba jeszcze " + (5 - players.get(0).dayForLookingClient) + " wywołania.");
+            endDay();
         }
 
     }
@@ -163,7 +142,7 @@ public class Game {
                     System.out.println("Do końca dnia cieszysz się z podpisanej umowy i nic nie robisz!");
                     endDay();
                 } else {
-                    System.out.println("Nie możesz podjąć się tego projektu");
+                    System.out.println("Nie możesz podjąć się tego projektu ze względu na jego złożoność");
                     showAvailableProject();
                 }
             } else mainAction(dayMenu.selectOptions());
@@ -182,7 +161,7 @@ public class Game {
         mainAction(dayMenu.selectOptions());
     }
 
-    private void goProgramming() throws InterruptedException {
+    private void goProgrammingPlayer() throws InterruptedException {
         if (players.get(0).hasProject() && players.get(0).allProjectsReady()) {
             System.out.println("Wszystkie Twoje projekty są gotowe. Pomyśl nad inną opcją.");
             mainAction(dayMenu.selectOptions());
@@ -190,28 +169,31 @@ public class Game {
         } else if (players.get(0).hasProject()) {
             players.get(0).showProject();
 
-
             System.out.println("Wybierz projekt nad którym chcesz pracować");
             int choice = input.nextInt();
-            if (!players.get(0).myProjects.get(choice).ready) {
+            if (!players.get(0).myProjects.get(choice).ready && !(players.get(0).isOnlyMobile(players.get(0).myProjects.get(choice)))) {
                 players.get(0).programmingDay(choice);
                 endDay();
+            } else if (players.get(0).isOnlyMobile(players.get(0).myProjects.get(choice))) {
+                System.out.println("Ten projekt wymaga jeszcze technologii mobilnej której nie potrafisz. Wracasz do menu. \nPomyśl nad zleceniem tej częsci komuś lub zatrudnij odpowiedniego pracownika.");
+                mainAction(dayMenu.selectOptions());
             } else {
                 System.out.println("Ten projekt jest już gotowy. Wracasz do menu. Następnym razem wybierz niedokończony projekt.");
                 mainAction(dayMenu.selectOptions());
             }
         } else {
-            System.out.println("Nie masz żadnych projektów nad którymi możesz pracować. Zacznij pracę nad nowym projektem.");
+            System.out.println("Nie masz projektów nad którymi możesz pracować. Zacznij pracę nad nowym projektem.");
             mainAction(dayMenu.selectOptions());
         }
     }
 
 
-
     private void checkNewProjeckt() {
-        if(players.get(0).dayForLookingClient==5){
-            players.get(0).dayForLookingClient=0;
-            addProjectToAvailable(allegro4);
+        if (players.get(0).dayForLookingClient == 5) {
+            players.get(0).dayForLookingClient = 0;
+            GameProject anotherOne = gen.getRandomGameProject(currentDay);
+            gen.getRandomClient().addProject(anotherOne);
+            addProjectToAvailable(anotherOne);
             System.out.println("\nZnalezłeś nowy projekt. Sprawdź go jutro w dostępnych zleceniach!");
         }
     }
@@ -240,7 +222,6 @@ public class Game {
             players.get(0).countFeePerMonth = 0;
             System.out.println("\nRozpoczyna się nowy miesiąc. Dobrze że pamiętałeś o Zus :) ");
         }
-
     }
 
     public void checkCash() {

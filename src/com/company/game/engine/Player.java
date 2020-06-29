@@ -13,7 +13,7 @@ public class Player {
     public List<Employee> myEmployee = new ArrayList<>();
     public List<GameProject> myProjects = new ArrayList<>();
     public int countFeePerMonth = 0;
-    public int dayForLookingClient =0;
+    public int dayForLookingClient = 0;
 
     public Player(String nickName) {
         this.nickName = nickName;
@@ -38,18 +38,18 @@ public class Player {
 
     public boolean allProjectsReady() {
         for (GameProject project : myProjects) {
-            if (!project.ready)return false;
+            if (!project.ready) return false;
         }
         return true;
     }
 
-    public void showMyProjects(){
+    public void showMyProjects() {
         for (int i = 0; i < myProjects.size(); i++) {
             GameProject project = myProjects.get(i);
-            System.out.println(i+" Projekt '"+project.projectName+"' o złożoności  "+project.complexity+ ". Właściciel "+project.owner.firstName+" "+project.owner.lastName+"\n"+
-                    "Termin wykonania: "+project.formatDate.format(project.deadLine)+" "+" Stan gotowości: "+project.ready+"\n"+
-                    "Technologie i czas "+project.daysForTechnology+"\n"+
-                    "Spodziewana nagroda "+project.reward+" po "+project.timeOfReward+ " dniach roboczych od ukończenia. Kara: "+project.penalty+"\n");
+            System.out.println(i + " Projekt '" + project.projectName + "' o złożoności  " + project.complexity + ". Właściciel " + project.owner.firstName + " " + project.owner.lastName + "\n" +
+                    "Termin wykonania: " + project.formatDate.format(project.deadLine) + " " + " Stan gotowości: " + project.ready + "\n" +
+                    "Technologie i czas " + project.daysForTechnology + "\n" +
+                    "Spodziewana nagroda " + project.reward + " po " + project.timeOfReward + " dniach roboczych od ukończenia. Kara: " + project.penalty + "\n");
         }
     }
 
@@ -59,13 +59,30 @@ public class Player {
         for (String s : TECHNOLOGY) {
             if (myProjects.get(choice).daysForTechnology.get(s) > 0) {
                 time = myProjects.get(choice).daysForTechnology.get(s);
-                myProjects.get(choice).daysForTechnology.replace(s, time - 1);
-                break;
+                //gracz nie umie prgramować mobilnie
+                if (!s.equals("mobile")) {
+                    myProjects.get(choice).daysForTechnology.replace(s, time - 1);
+                    break;
+                }
             }
-
         }
         myProjects.get(choice).isReady();
     }
+
+    public boolean isOnlyMobile(GameProject project) {
+        int mobile = 0;
+        int otherTech = 0;
+        for (String technology : TECHNOLOGY) {
+            if(!technology.equals("mobile")){               
+                if(otherTech<project.daysForTechnology.get(technology)) otherTech=project.daysForTechnology.get(technology);               
+            }
+            else{
+                if(mobile<project.daysForTechnology.get("mobile")) mobile=project.daysForTechnology.get("mobile");
+            }            
+        }
+        return otherTech == 0 && !(mobile == 0);
+    }
+
 
     public boolean hasProject() {
         return myProjects.size() > 0;

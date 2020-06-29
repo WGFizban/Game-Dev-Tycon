@@ -1,24 +1,13 @@
 package com.company;
 
 import com.company.game.engine.*;
-import com.company.game.engine.ClientCharacter;
 
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Scanner;
 
 public class Main {
 
     public static void main(String[] args) throws Exception {
-
-        Generator gen = new Generator();
-
-        for (int i = 0; i <40 ; i++) {
-            System.out.println(gen.getRandomClient());
-        }
 
 
 
