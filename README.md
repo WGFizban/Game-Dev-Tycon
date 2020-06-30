@@ -6,6 +6,7 @@ Zaimplementowane i działające opcje:
 - Generowanie losowych projektów i klientów 
 - Co miesięczne kontrole Zusu
 - Dodawanie projektów z puli dostępnych do gracza
+- wyszukiwanie nowych projektów
 - Wykonywanie procesu programowania przez gracza (gracz programuje technologie jedna po drugiej oprócz mobilnej)
 - Przeglądanie projektów
 - Generowanie błędów podczas programowania
