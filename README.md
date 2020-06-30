@@ -15,6 +15,8 @@ JESZCZE NIE WSPIERANE:
 - dodawanie współpracowników
 - zlecanie kodu kolegom ze studiów
 - Wykonywanie skomplikowanych projektów przez gracza (z wyżej wymienionych powodów i przez ograniczenie "mobile"
+- oddawanie gotowych projektów
+- testowanie projektóe
 
 ZAIMPLENTOWANO NA CHWILĘ OBECNĄ
 - alternatywne zakończenie gdy stan pieniędzy będzie 10x większy od stanu początkowego
