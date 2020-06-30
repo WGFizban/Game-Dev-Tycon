@@ -13,7 +13,7 @@ Zaimplementowane i działające opcje:
 - Testowanie kodu przez gracza (TYLKO KOD GRACZA - nie ma jeszcze pracowników i kolegów)
 - Zakończenie w wypadku bankructwa lub nie uiszczenia opłat
 - alternatywne zakończenie gdy stan pieniędzy będzie 10x większy od stanu początkowego
-- oddawanie gotowych projektów
+- oddawanie gotowych projektów - niestety wciąż jeszcze pojawiają się błedy
 - testowanie projektów
 
 JESZCZE NIE WSPIERANE:
