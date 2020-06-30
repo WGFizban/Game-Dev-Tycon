@@ -6,7 +6,7 @@ import java.util.List;
 public class Player {
 
     static final String[] TECHNOLOGY = {"front-end", "backend", "baza danych", "mobile", "wordpress", "prestashop"};
-    static final Double DEFAULT_STARTING_CASH = 2000.00;
+    public static final Double DEFAULT_STARTING_CASH = 2000.00;
 
     public String nickName;
     private Double cash;
@@ -36,11 +36,17 @@ public class Player {
 
     }
 
-    public boolean allProjectsReady() {
+    public boolean anyoneProjectIsReady() {
+        boolean isReady = true;
         for (GameProject project : myProjects) {
-            if (!project.ready) return false;
-        }
-        return true;
+                if (project.ready){
+                    break;}
+                else {
+                    isReady = false;
+                    break;
+                }
+            }
+        return isReady;
     }
 
     public void showMyProjects() {
@@ -50,8 +56,8 @@ public class Player {
             System.out.println(i + " Projekt '" + project.projectName + "' o złożoności  " + project.complexity + ". Właściciel " + project.owner.firstName + " " + project.owner.lastName + "\n" +
                     "Termin wykonania: " + project.formatDate.format(project.deadLine) + " " + " Stan gotowości: " + project.ready + "\n" +
                     "Technologie i czas " + project.daysForTechnology + "\n" +
-                    "Spodziewana nagroda " + project.reward + " po " + project.timeOfReward + " dniach roboczych od ukończenia. Kara: " + project.penalty + "\n"+
-                    "Błędy w kodzie: "+project.coderError + "\n");
+                    "Spodziewana nagroda " + project.reward + " po " + project.timeOfReward + " dniach roboczych od ukończenia. Kara: " + project.penalty + "\n" +
+                    "Błędy w kodzie: " + project.coderError + "\n");
         }
     }
 
@@ -65,7 +71,7 @@ public class Player {
                 if (!s.equals("mobile")) {
                     myProjects.get(choice).daysForTechnology.replace(s, time - 1);
                     //gracz ma 10% szans na wygenerowanie błedu w projekcie - błedy się sumują i mają wplyw przy oddaniu projektu
-                    if(Generator.checkPercentegesChance(10))myProjects.get(choice).coderError++;
+                    if (Generator.checkPercentegesChance(10)) myProjects.get(choice).coderError++;
                     break;
                 }
             }
@@ -77,11 +83,11 @@ public class Player {
         int mobile = 0;
         int otherTech = 0;
         for (String technology : TECHNOLOGY) {
-            if(!technology.equals("mobile")){
-                if(otherTech<project.daysForTechnology.get(technology)) otherTech=project.daysForTechnology.get(technology);
-            }
-            else{
-                if(mobile<project.daysForTechnology.get("mobile")) mobile=project.daysForTechnology.get("mobile");
+            if (!technology.equals("mobile")) {
+                if (otherTech < project.daysForTechnology.get(technology))
+                    otherTech = project.daysForTechnology.get(technology);
+            } else {
+                if (mobile < project.daysForTechnology.get("mobile")) mobile = project.daysForTechnology.get("mobile");
             }
         }
         return otherTech == 0 && !(mobile == 0);
@@ -95,16 +101,19 @@ public class Player {
     public void addProject(GameProject project) {
         this.myProjects.add(project);
         System.out.println("\nPomyślnie dodałeś projekt " + project.projectName + " do swoich zleceń");
-
     }
 
     public boolean areProjectsToTest() {
-        if(myProjects.size()>0){
+        int isTested = 0;
+        if (myProjects.size() > 0) {
             for (GameProject project : myProjects) {
-                if(project.coderError>0)return true;
-                break;
+                if (project.coderError == 0) isTested = 1;
+                else {
+                    isTested = 0;
+                    break;
+                }
             }
         }
-        return false;
+        return isTested == 1;
     }
 }

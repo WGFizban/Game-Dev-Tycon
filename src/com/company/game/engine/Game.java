@@ -1,5 +1,6 @@
 package com.company.game.engine;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ public class Game {
     static final LocalDate START_DATE = LocalDate.of(2020, 1, 1);
     static final int START_AVAILABLE_PROJECTS = 3;
 
+
     LocalDate currentDay;
     DateTimeFormatter formatDate = DateTimeFormatter.ofPattern("E dd.MM.yyyy");
 
@@ -21,6 +23,11 @@ public class Game {
     public List<Player> players = new ArrayList<>();
     public List<GameProject> availableProject = new ArrayList<>();
     public List<Client> allClient = new ArrayList<>();
+
+    //listy pamiętające daty i wielkości wypłat za gotowe projekty
+    public List<LocalDate> dateOfPrize = new ArrayList<>();
+    public List<Double> highOfPrize = new ArrayList<>();
+
 
     public Game(Player player) {
         startNewGame(player);
@@ -46,7 +53,7 @@ public class Game {
         setStartProporties();
         //ekran powitalny
         System.out.println("Witaj w Game dev Tycon " + players.get(0).nickName);
-        System.out.println("Zaraz rozpocznie się Twoja przygoda. Zaczniesz 1 stycznia 2020r. Twoja początkowa pensja: " + players.get(0).getCash() +
+        System.out.println("Zaraz rozpocznie się Twoja przygoda. Zaczniesz 1 stycznia 2020r. \nTwoja początkowa pensja: " + players.get(0).getCash() +
                 "\nPodejmuj mądre decyzje i nie zbankrutuj. Powodzenia!");
     }
 
@@ -86,8 +93,10 @@ public class Game {
                 testProject();
                 break;
             case 5:
+                uploadReadyProject(players.get(0));
                 break;
             case 6:
+                System.out.println("Opcja nie została zaimplementowana");
                 break;
             case 7:
                 payOfficialFees();
@@ -97,33 +106,131 @@ public class Game {
         }
     }
 
+    private void uploadReadyProject(Player player) throws InterruptedException {
+        //sprawdzanie posiadania projektów
+        if (player.myProjects.size() == 0) {
+            System.out.println("Musisz POSIADAĆ Jakikolwiek projekt");
+            mainAction(dayMenu.selectOptions());
+            //sprawdzenie posiadania gotowego projektu
+        } else if (!player.anyoneProjectIsReady()) {
+            System.out.println("Musisz posiadać gotowy projekt żeby go oddać");
+            mainAction(dayMenu.selectOptions());
+        } else {
+            player.showMyProjects();
+            int choice = dayMenu.selectOptions(player.myProjects.size(), "Wybierz gotowy projekt do oddania");
+            if (!player.myProjects.get(choice).ready) {
+                System.out.println("Musisz wybrać gotowy projekt!\n");
+                uploadReadyProject(player);
+            } else {
+                //sprawdzenie przedawnienia
+                Double penalty = checkPeanalty(player, player.myProjects.get(choice), currentDay);
+                //błedy w projekcie a kontract
+                boolean isContract = impactErrorOnContract(player.myProjects.get(choice));
+                System.out.println("\nPomyślnie oddałeś projekt " + player.myProjects.get(choice).projectName + " do klienta " + player.myProjects.get(choice).owner.firstName + " " + player.myProjects.get(choice).owner.lastName +
+                        "\nJeśli wszystko dobrze pójdzie zapłatę dostaniesz " + formatDate.format(currentDay.plusDays(player.myProjects.get(0).timeOfReward)));
+                if (penalty > 0) {
+                    System.out.println("Nie wykonałeś projektu w terminie i zapłacisz karę: " + penalty + " która w tym momencie jest odejmowana z Twojego konta.");
+                    player.setCash(player.getCash() - penalty);
+                }
+                if (!isContract) {
+                    System.out.println("starciłeś kontrakt z klientem przez oddanie projektu z błedami! Nie otrzymasz żadnej zapłaty za projekt.");
+                } else {
+                    int daysToPrize = timeForPrize(player.myProjects.get(choice));
+
+                    if ("SKRWL".equals(player.myProjects.get(choice).owner.character.toString())) {
+                        if (Generator.checkPercentegesChance(1)) ;
+                        else
+                            addDateAndHighOfPrize(currentDay.plusDays(daysToPrize), player.myProjects.get(choice).reward);
+                    } else
+                        addDateAndHighOfPrize(currentDay.plusDays(daysToPrize), player.myProjects.get(choice).reward);
+                    endDay();
+                }
+            }
+        }
+
+    }
+
+    private void addDateAndHighOfPrize(LocalDate dateReward, Double reward) {
+        dateOfPrize.add(dateReward);
+        highOfPrize.add(reward);
+    }
+
+    private int timeForPrize(GameProject project) {
+        int days = 0;
+        switch (project.owner.character.toString()) {
+            case "LUZAK":
+                if (Generator.checkPercentegesChance(30)) days = project.timeOfReward + 7;
+                else days = project.timeOfReward;
+                break;
+            case "SKRWL":
+                if (Generator.checkPercentegesChance(30)) days = project.timeOfReward + 7;
+                else if (Generator.checkPercentegesChance(5)) days = project.timeOfReward + 31;
+
+                break;
+            default:
+                days = project.timeOfReward;
+        }
+        return days;
+    }
+
+    private boolean impactErrorOnContract(GameProject project) {
+
+        boolean isContract = true;
+        switch (project.owner.character.toString()) {
+            case "WYMAGAJACY":
+                if (Generator.checkPercentegesChance(50)) ;
+                else isContract = false;
+                break;
+            case "SKRWL":
+                isContract = false;
+                break;
+            default:
+        }
+        return isContract;
+    }
+
+    private Double checkPeanalty(Player player, GameProject project, LocalDate currentDay) {
+        double penalty = 0.0;
+        if (currentDay.isAfter(project.deadLine)) {
+
+            if ("LUZAK".equals(project.owner.character.toString())) {
+                if (Duration.between(project.deadLine, currentDay).toDays() <= 7) {
+                    if (Generator.checkPercentegesChance(20)) ;
+                    else penalty = project.penalty;
+                } else penalty = project.penalty;
+            } else {
+                penalty = project.penalty;
+            }
+            //naliczenie kar za przedawnienie projektu w zależności od charakteru kleinta
+        }
+        return penalty;
+    }
+
     //poświęcenie dnia na testowanie daje gwarancję oddania sprawnego kodu
     private void testProject() throws InterruptedException {
         switch (testMenu.selectOptions()) {
             case 0:
                 testPlayerProject(players.get(0));
             case 1:
+                System.out.println("Opcja nie została zaimplementowana");
                 break;
             case 2:
+                System.out.println("Opcja nie została zaimplementowana");
                 break;
-
         }
-
     }
 
     private void testPlayerProject(Player player) throws InterruptedException {
-        if(player.myProjects.size()==0||player.areProjectsToTest()){
-            System.out.println("Nie masz projektó do testowania");
+        if (player.myProjects.size() == 0 || player.areProjectsToTest()) {
+            System.out.println("\nNie masz projektów lub nie wymagają one na razie testowania");
             mainAction(dayMenu.selectOptions());
-        }
-        else{
+        } else {
             player.showMyProjects();
-            int choice = dayMenu.selectOptions(player.myProjects.size(),"Wybierz projekt który chcesz testować");
-            if(player.myProjects.get(choice).coderError==0){
+            int choice = dayMenu.selectOptions(player.myProjects.size(), "Wybierz projekt który chcesz testować");
+            if (player.myProjects.get(choice).coderError == 0) {
                 System.out.println("Ten projekt nie miał błędów. wybierz inny projekt!\n");
                 testPlayerProject(player);
-            }
-            else{
+            } else {
                 player.myProjects.get(choice).coderError = 0;
                 System.out.println("Cały dzień testujesz ale masz pewność że już napisany kod jest 100% poprawny");
                 endDay();
@@ -176,7 +283,7 @@ public class Game {
                     System.out.println("Do końca dnia cieszysz się z podpisanej umowy i nic nie robisz!");
                     endDay();
                 } else {
-                    System.out.println("Nie możesz podjąć się tego projektu ze względu na jego złożoność");
+                    System.out.println("Nie możesz podjąć się tego projektu ze względu na jego złożoność\n");
                     chooseFromAvailableProject();
                 }
             } else mainAction(dayMenu.selectOptions());
@@ -196,7 +303,7 @@ public class Game {
     }
 
     private void goProgrammingPlayer() throws InterruptedException {
-        if (players.get(0).hasProject() && players.get(0).allProjectsReady()) {
+        if (players.get(0).hasProject() && players.get(0).anyoneProjectIsReady()) {
             System.out.println("Wszystkie Twoje projekty są gotowe. Pomyśl nad inną opcją.");
             mainAction(dayMenu.selectOptions());
 
@@ -262,13 +369,33 @@ public class Game {
         if (players.get(0).getCash() <= 0) {
             gameIsOn = false;
             System.out.println("Właśnie zbankrutowałeś. Koniec Gry!!!");
+        } else if (players.get(0).getCash() >= (10 * Player.DEFAULT_STARTING_CASH)) {
+            gameIsOn = false;
+            System.out.println("Zarobiłeś 10x więcej pieniędzy niż miałeś na początku gry. WYGRYWASZ!!! GRATULUJĘ!");
         }
     }
 
     private void endDay() {
+
         checkGameDuration(currentDay.plusDays(1));
         checkNewProjeckt();
         currentDay = currentDay.plusDays(1);
+        checkIsTimeForReward(currentDay);
+    }
+
+    private void checkIsTimeForReward(LocalDate currentDay) {
+
+        for (int i = 0; i < dateOfPrize.size(); i++) {
+            LocalDate localDate = dateOfPrize.get(i);
+            if (localDate == currentDay) {
+                System.out.println("Dostałeś przelew na konto za zakończony projekt");
+                players.get(0).setCash(players.get(0).getCash()+highOfPrize.get(i));
+               toDelete=i;
+
+            }
+
+        }
+
     }
 
 }

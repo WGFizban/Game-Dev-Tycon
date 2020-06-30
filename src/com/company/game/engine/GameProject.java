@@ -10,8 +10,8 @@ import java.util.Map;
 public class GameProject {
     public String projectName;
     public ProjectComplexity complexity;
-    static final String [] TECHNOLOGY = {"front-end","backend","baza danych","mobile","wordpress","prestashop"};
-    Map<String,Integer> daysForTechnology = new LinkedHashMap<>();
+    static final String[] TECHNOLOGY = {"front-end", "backend", "baza danych", "mobile", "wordpress", "prestashop"};
+    Map<String, Integer> daysForTechnology = new LinkedHashMap<>();
 
     public boolean ready;
     DateTimeFormatter formatDate = DateTimeFormatter.ofPattern("E dd.MM.yyyy");
@@ -30,9 +30,7 @@ public class GameProject {
     public int coderError = 0;
 
 
-
-
-    public GameProject(String projectName, ProjectComplexity complexity, LocalDate deadLine, Double penalty, Double reward, int timeOfReward,Integer[]techDuration) {
+    public GameProject(String projectName, ProjectComplexity complexity, LocalDate deadLine, Double penalty, Double reward, int timeOfReward, Integer[] techDuration) {
         this.projectName = projectName;
         this.complexity = complexity;
         this.deadLine = deadLine;
@@ -40,7 +38,7 @@ public class GameProject {
         this.reward = reward;
         this.timeOfReward = timeOfReward;
         for (int i = 0; i < TECHNOLOGY.length; i++) {
-            daysForTechnology.put(TECHNOLOGY[i],techDuration[i]);
+            daysForTechnology.put(TECHNOLOGY[i], techDuration[i]);
         }
     }
 
@@ -57,9 +55,9 @@ public class GameProject {
 
     @Override
     public String toString() {
-        return "Projekt "+projectName+" o złożoności  "+complexity+ ". Właściciel "+owner.firstName+" "+owner.lastName+"\n"+
-                "Termin wykonania: "+formatDate.format(deadLine)+" "+" Stan gotowości: "+ready+"\n"+
-                "Technologie i czas "+daysForTechnology+"\n"+
-                "Spodziewana nagroda "+reward+" po "+timeOfReward+ " dniach roboczych od ukończenia. Kara: "+penalty+"\n";
+        return "Projekt " + projectName + " o złożoności  " + complexity + ". Właściciel " + owner.firstName + " " + owner.lastName + "\n" +
+                "Termin wykonania: " + formatDate.format(deadLine) + " " + " Stan gotowości: " + ready + "\n" +
+                "Technologie i czas " + daysForTechnology + "\n" +
+                "Spodziewana nagroda " + reward + " po " + timeOfReward + " dniach roboczych od ukończenia. Kara: " + penalty + "\n";
     }
 }

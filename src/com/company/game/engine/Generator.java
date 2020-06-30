@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+
 //Generator jest zasymulowany statycznie
 public final class Generator {
 
@@ -66,7 +67,7 @@ public final class Generator {
         Integer[] randTechDuration = new Integer[randTechTime.size()];
         for (int i = 0; i < randTechTime.size(); i++) {
             Integer time = randTechTime.get(i);
-            randTechDuration[i]=time;
+            randTechDuration[i] = time;
         }
 
         return new GameProject(PROJECT_FIRST_SEGMENT_NAME[randFirstSegmentName] + PROJECT_LAST_SEGMENT_NAME[randLastSegmentName],
@@ -89,7 +90,7 @@ public final class Generator {
     }
 
     //szansa w procentach że coś się uda
-    public static boolean checkPercentegesChance(int chance){
+    public static boolean checkPercentegesChance(int chance) {
         int randPercent = (ThreadLocalRandom.current().nextInt(1, 101));
         return chance >= randPercent;
     }
