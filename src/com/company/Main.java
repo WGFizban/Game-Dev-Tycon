@@ -9,22 +9,17 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
 
-
+/*        Generator gen = new Generator();
+        for (int i = 0; i < 100; i++) {
+            System.out.println(gen.checkPercentegesChance(0));
+        }*/
 
         Scanner input = new Scanner(System.in);
         System.out.println("Podaj Nick dla Twojego gracza");
         Player player1 = new Player(input.nextLine());
 
-        Game myGame = new Game();
-        myGame.startNewGame(player1);
-        //testy
-        //myGame.availableProject.get(1).isReady();
+        Game myGame = new Game(player1);
 
-//        try {
-//            Thread.sleep(5000);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
         while (myGame.gameIsOn) {
             myGame.newDay();
         }

@@ -30,7 +30,7 @@ public class Player {
     }
 
 
-    public void showProject() {
+    public void checkAndShowProject() {
         if (myProjects.size() == 0) System.out.println("Aktualnie nie masz żadnych projektów \n");
         else showMyProjects();
 
@@ -44,12 +44,14 @@ public class Player {
     }
 
     public void showMyProjects() {
+        System.out.println();
         for (int i = 0; i < myProjects.size(); i++) {
             GameProject project = myProjects.get(i);
             System.out.println(i + " Projekt '" + project.projectName + "' o złożoności  " + project.complexity + ". Właściciel " + project.owner.firstName + " " + project.owner.lastName + "\n" +
                     "Termin wykonania: " + project.formatDate.format(project.deadLine) + " " + " Stan gotowości: " + project.ready + "\n" +
                     "Technologie i czas " + project.daysForTechnology + "\n" +
-                    "Spodziewana nagroda " + project.reward + " po " + project.timeOfReward + " dniach roboczych od ukończenia. Kara: " + project.penalty + "\n");
+                    "Spodziewana nagroda " + project.reward + " po " + project.timeOfReward + " dniach roboczych od ukończenia. Kara: " + project.penalty + "\n"+
+                    "Błędy w kodzie: "+project.coderError + "\n");
         }
     }
 
@@ -62,6 +64,8 @@ public class Player {
                 //gracz nie umie prgramować mobilnie
                 if (!s.equals("mobile")) {
                     myProjects.get(choice).daysForTechnology.replace(s, time - 1);
+                    //gracz ma 10% szans na wygenerowanie błedu w projekcie - błedy się sumują i mają wplyw przy oddaniu projektu
+                    if(Generator.checkPercentegesChance(10))myProjects.get(choice).coderError++;
                     break;
                 }
             }
@@ -73,12 +77,12 @@ public class Player {
         int mobile = 0;
         int otherTech = 0;
         for (String technology : TECHNOLOGY) {
-            if(!technology.equals("mobile")){               
-                if(otherTech<project.daysForTechnology.get(technology)) otherTech=project.daysForTechnology.get(technology);               
+            if(!technology.equals("mobile")){
+                if(otherTech<project.daysForTechnology.get(technology)) otherTech=project.daysForTechnology.get(technology);
             }
             else{
                 if(mobile<project.daysForTechnology.get("mobile")) mobile=project.daysForTechnology.get("mobile");
-            }            
+            }
         }
         return otherTech == 0 && !(mobile == 0);
     }
@@ -94,4 +98,13 @@ public class Player {
 
     }
 
+    public boolean areProjectsToTest() {
+        if(myProjects.size()>0){
+            for (GameProject project : myProjects) {
+                if(project.coderError>0)return true;
+                break;
+            }
+        }
+        return false;
+    }
 }

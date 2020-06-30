@@ -4,8 +4,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
-
-public class Generator {
+//Generator jest zasymulowany statycznie
+public final class Generator {
 
     static final String[] NAMES = {"Jan", "Marek", "Anna", "Krzysztof", "Karol", "Tomasz"};
     static final String[] SURNAMES = {"Poważny", "Luzacki", "Wyrozumiały", "Java", "Press", "Kosa"};
@@ -20,14 +20,11 @@ public class Generator {
     private int min;
     private int max;
 
+    private Generator() {
+    }
 
-    Client client1 = new Client("Jan", "Luzacki", ClientCharacter.LUZAK);
-    Integer[] days = new Integer[]{2, 5, 3, 7, 8, 0};
-
-    GameProject allegro1 = new GameProject("Nowe allegro", ProjectComplexity.EASY, LocalDate.of(2020, 1, 20), 100.00, 500.00, 7, days);
-
-    //Ganerator projektów w fazie przygotowywania
-    public GameProject getRandomGameProject(LocalDate now) {
+    //Ganerator projektów
+    public static GameProject getRandomGameProject(LocalDate now) {
 
 
         int randFirstSegmentName = ThreadLocalRandom.current().nextInt(0, PROJECT_FIRST_SEGMENT_NAME.length);
@@ -82,7 +79,7 @@ public class Generator {
         );
     }
 
-    public Client getRandomClient() {
+    public static Client getRandomClient() {
 
         int randCharacter = ThreadLocalRandom.current().nextInt(0, CLIENT_CHARACTER.length);
         int randName = ThreadLocalRandom.current().nextInt(0, NAMES.length);
@@ -91,8 +88,14 @@ public class Generator {
         return new Client(NAMES[randName], SURNAMES[randSurname], ClientCharacter.valueOf(CLIENT_CHARACTER[randCharacter]));
     }
 
+    //szansa w procentach że coś się uda
+    public static boolean checkPercentegesChance(int chance){
+        int randPercent = (ThreadLocalRandom.current().nextInt(1, 101));
+        return chance >= randPercent;
+    }
 
-    public void randomAddProjectToClient(List<GameProject> projects, List<Client> clients) {
+
+    public static void randomAddProjectToClient(List<GameProject> projects, List<Client> clients) {
         for (GameProject project : projects) {
             int ranIndexClient = ThreadLocalRandom.current().nextInt(0, clients.size());
             clients.get(ranIndexClient).addProject(project);

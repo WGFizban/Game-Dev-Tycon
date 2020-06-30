@@ -26,7 +26,18 @@ public class Menu {
         int choice = input.nextInt();
         while (choice >= menuOptions.length || choice < 0) {
             System.out.print("Nie ma takiej opcji. Podaj poprawną opcje. Opcja: ");
-            choice=input.nextInt();
+            choice = input.nextInt();
+        }
+        return choice;
+    }
+
+    public int selectOptions(int optionsLimit, String message) {
+        System.out.print(message + " ");
+
+        int choice = input.nextInt();
+        while (choice >= optionsLimit || choice < 0) {
+            System.out.print("Niedozwolony numer. Podaj poprawny: ");
+            choice = input.nextInt();
         }
         return choice;
     }

@@ -27,6 +27,11 @@ public class GameProject {
     public Double reward;
     public int timeOfReward;
 
+    public int coderError = 0;
+
+
+
+
     public GameProject(String projectName, ProjectComplexity complexity, LocalDate deadLine, Double penalty, Double reward, int timeOfReward,Integer[]techDuration) {
         this.projectName = projectName;
         this.complexity = complexity;

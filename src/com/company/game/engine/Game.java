@@ -10,18 +10,21 @@ public class Game {
 
     //data rozpoczęcia gry i ilosc dostepnych projektów
     static final LocalDate START_DATE = LocalDate.of(2020, 1, 1);
-    static final int START_AVAILABLE_PROJECTS=3;
+    static final int START_AVAILABLE_PROJECTS = 3;
 
     LocalDate currentDay;
     DateTimeFormatter formatDate = DateTimeFormatter.ofPattern("E dd.MM.yyyy");
 
-    Generator gen = new Generator();
     public boolean gameIsOn;
 
     Scanner input = new Scanner(System.in);
     public List<Player> players = new ArrayList<>();
     public List<GameProject> availableProject = new ArrayList<>();
     public List<Client> allClient = new ArrayList<>();
+
+    public Game(Player player) {
+        startNewGame(player);
+    }
 
     //tworzenie menu
     String[] dayOptions = {"Programuj", "Zobacz dostępne projekty", "Zobacz moje projekty", "Szukaj klientów/projektów", "Testuj kody", "Oddaj projekt", "Zarządzaj pracownikami", "Rozlicz urzędy", "Wyjdź z programu"};
@@ -34,11 +37,8 @@ public class Game {
     Menu projMenu = new Menu(projOptions);
 
 
-
-
     public void startNewGame(Player player) {
         players.add(player);
-
         gameIsOn = true;
         currentDay = START_DATE;
 
@@ -52,11 +52,11 @@ public class Game {
 
     private void setStartProporties() {
 
-        for (int i = 0; i <START_AVAILABLE_PROJECTS ; i++) {
-            availableProject.add(gen.getRandomGameProject(START_DATE));
-            allClient.add(gen.getRandomClient());
+        for (int i = 0; i < START_AVAILABLE_PROJECTS; i++) {
+            availableProject.add(Generator.getRandomGameProject(START_DATE));
+            allClient.add(Generator.getRandomClient());
         }
-        gen.randomAddProjectToClient(availableProject,allClient);
+        Generator.randomAddProjectToClient(availableProject, allClient);
 
     }
 
@@ -67,7 +67,6 @@ public class Game {
     }
 
 
-
     public void mainAction(int action) throws InterruptedException {
         System.out.println();
         switch (action) {
@@ -75,7 +74,7 @@ public class Game {
                 goProgrammingPlayer();
                 break;
             case 1:
-                showAvailableProject();
+                chooseFromAvailableProject();
                 break;
             case 2:
                 showPlayerProject();
@@ -84,6 +83,7 @@ public class Game {
                 searchNewProject();
                 break;
             case 4:
+                testProject();
                 break;
             case 5:
                 break;
@@ -94,6 +94,40 @@ public class Game {
                 break;
             default:
                 gameIsOn = false;
+        }
+    }
+
+    //poświęcenie dnia na testowanie daje gwarancję oddania sprawnego kodu
+    private void testProject() throws InterruptedException {
+        switch (testMenu.selectOptions()) {
+            case 0:
+                testPlayerProject(players.get(0));
+            case 1:
+                break;
+            case 2:
+                break;
+
+        }
+
+    }
+
+    private void testPlayerProject(Player player) throws InterruptedException {
+        if(player.myProjects.size()==0||player.areProjectsToTest()){
+            System.out.println("Nie masz projektó do testowania");
+            mainAction(dayMenu.selectOptions());
+        }
+        else{
+            player.showMyProjects();
+            int choice = dayMenu.selectOptions(player.myProjects.size(),"Wybierz projekt który chcesz testować");
+            if(player.myProjects.get(choice).coderError==0){
+                System.out.println("Ten projekt nie miał błędów. wybierz inny projekt!\n");
+                testPlayerProject(player);
+            }
+            else{
+                player.myProjects.get(choice).coderError = 0;
+                System.out.println("Cały dzień testujesz ale masz pewność że już napisany kod jest 100% poprawny");
+                endDay();
+            }
         }
     }
 
@@ -122,7 +156,7 @@ public class Game {
 
     }
 
-    private void showAvailableProject() throws InterruptedException {
+    private void chooseFromAvailableProject() throws InterruptedException {
         if (availableProject.size() == 0) {
             System.out.println("Na razie nie ma tu żadnych nowych zleceń którymi mógłbyś się zająć");
             mainAction(dayMenu.selectOptions());
@@ -133,8 +167,8 @@ public class Game {
             }
             if (projMenu.selectOptions() == 0) {
 
-                System.out.print("Podaj numer projektu który chcesz wybrać: ");
-                int choice = input.nextInt();
+
+                int choice = dayMenu.selectOptions(availableProject.size(), "Podaj numer projektu który chcesz wybrać: ");
 
                 if (canAddProject(availableProject.get(choice), players.get(0))) {
                     players.get(0).addProject(availableProject.get(choice));
@@ -143,7 +177,7 @@ public class Game {
                     endDay();
                 } else {
                     System.out.println("Nie możesz podjąć się tego projektu ze względu na jego złożoność");
-                    showAvailableProject();
+                    chooseFromAvailableProject();
                 }
             } else mainAction(dayMenu.selectOptions());
 
@@ -157,7 +191,7 @@ public class Game {
 
 
     private void showPlayerProject() throws InterruptedException {
-        players.get(0).showProject();
+        players.get(0).checkAndShowProject();
         mainAction(dayMenu.selectOptions());
     }
 
@@ -167,10 +201,10 @@ public class Game {
             mainAction(dayMenu.selectOptions());
 
         } else if (players.get(0).hasProject()) {
-            players.get(0).showProject();
 
-            System.out.println("Wybierz projekt nad którym chcesz pracować");
-            int choice = input.nextInt();
+            players.get(0).checkAndShowProject();
+
+            int choice = dayMenu.selectOptions(players.get(0).myProjects.size(), "Wybierz projekt nad którym chcesz pracować:");
             if (!players.get(0).myProjects.get(choice).ready && !(players.get(0).isOnlyMobile(players.get(0).myProjects.get(choice)))) {
                 players.get(0).programmingDay(choice);
                 endDay();
@@ -191,8 +225,8 @@ public class Game {
     private void checkNewProjeckt() {
         if (players.get(0).dayForLookingClient == 5) {
             players.get(0).dayForLookingClient = 0;
-            GameProject anotherOne = gen.getRandomGameProject(currentDay);
-            gen.getRandomClient().addProject(anotherOne);
+            GameProject anotherOne = Generator.getRandomGameProject(currentDay);
+            Generator.getRandomClient().addProject(anotherOne);
             addProjectToAvailable(anotherOne);
             System.out.println("\nZnalezłeś nowy projekt. Sprawdź go jutro w dostępnych zleceniach!");
         }
