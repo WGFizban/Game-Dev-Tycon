@@ -12,16 +12,18 @@ Zaimplementowane i działające opcje:
 - Generowanie błędów podczas programowania przez gracza
 - Testowanie kodu przez gracza (TYLKO KOD GRACZA - nie ma jeszcze pracowników i kolegów)
 - Zakończenie w wypadku bankructwa lub nie uiszczenia opłat
+- alternatywne zakończenie gdy stan pieniędzy będzie 10x większy od stanu początkowego
+- oddawanie gotowych projektów - niestety wciąż jeszcze pojawiają się błedy
+- testowanie projektów
 
 JESZCZE NIE WSPIERANE:
 - dodawanie współpracowników
 - zlecanie kodu kolegom ze studiów
 - Wykonywanie skomplikowanych projektów przez gracza (z wyżej wymienionych powodów i przez ograniczenie "mobile"
-- oddawanie gotowych projektów
-- testowanie projektóe
 
-ZAIMPLENTOWANO NA CHWILĘ OBECNĄ
-- alternatywne zakończenie gdy stan pieniędzy będzie 10x większy od stanu początkowego
+
+
+
 
 
 
