@@ -32,7 +32,7 @@ public final class Generator {
         int randLastSegmentName = ThreadLocalRandom.current().nextInt(0, PROJECT_LAST_SEGMENT_NAME.length);
         int randProjectComplexity = ThreadLocalRandom.current().nextInt(0, PROJECT_COMPLEXITY.length);
 
-        int minDay = 1, maxDay = 3, rowModyficator;
+        int minDay = 1, maxDay = 2, rowModyficator;
         List<Integer> randTechTime = new ArrayList<>();
         int[][] percentagesForTechnologyTime = {{50, 100, 100, 5, 50, 100}, {100, 100, 100, 40, 70, 100}, {100, 100, 100, 100, 100, 100},};
         //{timeModyficatorTechnology,dayModyficatorDeadline}

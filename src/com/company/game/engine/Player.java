@@ -39,13 +39,24 @@ public class Player {
     public boolean anyoneProjectIsReady() {
         boolean isReady = true;
         for (GameProject project : myProjects) {
-                if (project.ready){
-                    break;}
-                else {
-                    isReady = false;
-                    break;
-                }
+            if (project.ready) {
+                break;
+            } else {
+                isReady = false;
+                break;
             }
+        }
+        return isReady;
+    }
+
+    public boolean allProjectAreReady() {
+        boolean isReady = true;
+        for (GameProject project : myProjects) {
+            if (!project.ready) {
+                isReady = false;
+                break;
+            }
+        }
         return isReady;
     }
 
