@@ -1,9 +1,11 @@
 package com.company.game.engine;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Player {
+public class Player implements ProgrammingInterface {
 
     static final String[] TECHNOLOGY = {"front-end", "backend", "baza danych", "mobile", "wordpress", "prestashop"};
     public static final Double DEFAULT_STARTING_CASH = 2000.00;
@@ -22,7 +24,8 @@ public class Player {
 
 
     public Double getCash() {
-        return cash;
+        //dodanie precyzji do pola cash pomocne przy pracy z procentami
+        return BigDecimal.valueOf(cash).setScale(2, RoundingMode.HALF_UP).doubleValue();
     }
 
     public void setCash(Double cash) {
@@ -72,24 +75,6 @@ public class Player {
         }
     }
 
-    public void programmingDay(int choice) {
-        System.out.println("Spędzasz dzień na programowaniu");
-        int time;
-        for (String s : TECHNOLOGY) {
-            if (myProjects.get(choice).daysForTechnology.get(s) > 0) {
-                time = myProjects.get(choice).daysForTechnology.get(s);
-                //gracz nie umie prgramować mobilnie
-                if (!s.equals("mobile")) {
-                    myProjects.get(choice).daysForTechnology.replace(s, time - 1);
-                    //gracz ma 10% szans na wygenerowanie błedu w projekcie - błedy się sumują i mają wplyw przy oddaniu projektu
-                    if (Generator.checkPercentegesChance(10)) myProjects.get(choice).coderError++;
-                    break;
-                }
-            }
-        }
-        myProjects.get(choice).isReady();
-    }
-
     public boolean isOnlyMobile(GameProject project) {
         int mobile = 0;
         int otherTech = 0;
@@ -126,5 +111,24 @@ public class Player {
             }
         }
         return isTested == 1;
+    }
+
+    @Override
+    public void programmingDay(GameProject selectedProject) {
+        System.out.println("Spędzasz dzień na programowaniu");
+        int time;
+        for (String s : TECHNOLOGY) {
+            if (selectedProject.daysForTechnology.get(s) > 0) {
+                time = selectedProject.daysForTechnology.get(s);
+                //gracz nie umie prgramować mobilnie
+                if (!s.equals("mobile")) {
+                    selectedProject.daysForTechnology.replace(s, time - 1);
+                    //gracz ma 10% szans na wygenerowanie błedu w projekcie - błedy się sumują i mają wplyw przy oddaniu projektu
+                    if (Generator.checkPercentegesChance(10)) selectedProject.coderError++;
+                    break;
+                }
+            }
+        }
+        selectedProject.isReady();
     }
 }

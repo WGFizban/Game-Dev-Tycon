@@ -4,7 +4,6 @@ import java.util.Scanner;
 
 public class Menu {
     String[] menuOptions;
-    Scanner input = new Scanner(System.in);
 
     public Menu(String[] myOptions) {
         menuOptions = myOptions;
@@ -22,11 +21,10 @@ public class Menu {
         showOnly();
         System.out.print("Którą opcję wybierasz? Opcja: ");
 
-
-        int choice = input.nextInt();
+        int choice = checkChoose();
         while (choice >= menuOptions.length || choice < 0) {
             System.out.print("Nie ma takiej opcji. Podaj poprawną opcje. Opcja: ");
-            choice = input.nextInt();
+            choice = checkChoose();
         }
         return choice;
     }
@@ -34,12 +32,24 @@ public class Menu {
     public int selectOptions(int optionsLimit, String message) {
         System.out.print(message + " ");
 
-        int choice = input.nextInt();
+        int choice = checkChoose();
         while (choice >= optionsLimit || choice < 0) {
             System.out.print("Niedozwolony numer. Podaj poprawny: ");
-            choice = input.nextInt();
+            choice = checkChoose();
         }
         return choice;
+    }
+//zapobieganie wprowadzeniu znaków innych niż potrzebna liczba
+    private static int checkChoose() {
+        Scanner input = new Scanner(System.in);
+        int goodChoice;
+        try {
+            return input.nextInt();
+        } catch (Exception e) {
+            System.out.print("Wykryto niedozwolone znaki. Musisz podać liczbę! Opcja: ");
+            goodChoice = checkChoose();
+        }
+        return goodChoice;
     }
 
 

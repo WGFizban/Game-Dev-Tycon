@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 public class Game {
 
@@ -18,16 +17,13 @@ public class Game {
 
     public boolean gameIsOn;
 
-    Scanner input = new Scanner(System.in);
     public List<Player> players = new ArrayList<>();
     public List<GameProject> availableProject = new ArrayList<>();
     public List<Client> allClient = new ArrayList<>();
 
     //listy pamiętające daty i wielkości wypłat za gotowe projekty
     public List<LocalDate> dateOfPrize = new ArrayList<>();
-    public List<Double> highOfPrize = new ArrayList<>();
     private List<GameProject> finishedProjects = new ArrayList<>();
-
 
     public Game(Player player) {
         startNewGame(player);
@@ -212,6 +208,7 @@ public class Game {
         switch (testMenu.selectOptions()) {
             case 0:
                 testPlayerProject(players.get(0));
+                break;
             case 1:
                 System.out.println("Opcja nie została zaimplementowana");
                 break;
@@ -314,7 +311,7 @@ public class Game {
 
             int choice = dayMenu.selectOptions(players.get(0).myProjects.size(), "Wybierz projekt nad którym chcesz pracować:");
             if (!players.get(0).myProjects.get(choice).ready && !(players.get(0).isOnlyMobile(players.get(0).myProjects.get(choice)))) {
-                players.get(0).programmingDay(choice);
+                players.get(0).programmingDay(players.get(0).myProjects.get(choice));
                 endDay();
             } else if (players.get(0).isOnlyMobile(players.get(0).myProjects.get(choice))) {
                 System.out.println("Ten projekt wymaga jeszcze technologii mobilnej której nie potrafisz. Wracasz do menu. \nPomyśl nad zleceniem tej częsci komuś lub zatrudnij odpowiedniego pracownika.");
@@ -354,7 +351,7 @@ public class Game {
     private void checkZus(int nextMonth) {
         int lastTermin = currentDay.lengthOfMonth() - currentDay.getDayOfMonth();
         //Awaryjna przypominajka dla gracza
-        if (lastTermin == 2) {
+        if (lastTermin == 2&&!(players.get(0).countFeePerMonth==2)) {
             System.out.println("\nOSTRZEŻENIE! Dwa dni do końca miesiąca. Jeśli nie poświęcisz wymaganych dni: " + (2 - players.get(0).countFeePerMonth) + " na rozliczenia z urzędami przegrasz!");
         }
         if (!(nextMonth == currentDay.getMonthValue()) && players.get(0).countFeePerMonth < 2) {
