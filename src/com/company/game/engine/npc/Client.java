@@ -1,12 +1,14 @@
-package com.company.game.engine;
+package com.company.game.engine.npc;
+
+import com.company.game.engine.GameProject;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Client {
-    String firstName;
-    String lastName;
-    ClientCharacter character;
+    public String firstName;
+    public String lastName;
+    public ClientCharacter character;
 
 
     public List<GameProject> myProjects = new ArrayList<>();

@@ -42,14 +42,12 @@ public class Menu {
 //zapobieganie wprowadzeniu znaków innych niż potrzebna liczba
     private static int checkChoose() {
         Scanner input = new Scanner(System.in);
-        int goodChoice;
         try {
             return input.nextInt();
         } catch (Exception e) {
             System.out.print("Wykryto niedozwolone znaki. Musisz podać liczbę! Opcja: ");
-            goodChoice = checkChoose();
+            return checkChoose();
         }
-        return goodChoice;
     }
 
 

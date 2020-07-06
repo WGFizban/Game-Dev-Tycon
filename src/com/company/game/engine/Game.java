@@ -1,5 +1,8 @@
 package com.company.game.engine;
 
+import com.company.game.engine.npc.*;
+
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -36,7 +39,7 @@ public class Game {
     String[] emplOptions = {"Zatrudnij pracownika", "Zwolnij pracownika"};
     Menu dayMenu = new Menu(dayOptions);
     Menu testMenu = new Menu(testOptions);
-    Menu emplMenu = new Menu(emplOptions);
+    Menu hireMenu = new Menu(emplOptions);
     Menu projMenu = new Menu(projOptions);
 
 
@@ -48,8 +51,8 @@ public class Game {
         //poczatkowe ustawienia
         setStartProporties();
         //ekran powitalny
-        System.out.println("Witaj w Game dev Tycon " + players.get(0).nickName);
-        System.out.println("Zaraz rozpocznie się Twoja przygoda. Zaczniesz 1 stycznia 2020r. \nTwoja początkowa pensja: " + players.get(0).getCash() +
+        System.out.println("Witaj w Game dev Tycon " + player.nickName);
+        System.out.println("Zaraz rozpocznie się Twoja przygoda. Zaczniesz 1 stycznia 2020r. \nTwoja początkowa pensja: " + player.getCash() +
                 "\nPodejmuj mądre decyzje i nie zbankrutuj. Powodzenia!");
     }
 
@@ -86,7 +89,7 @@ public class Game {
                 showPlayerProject();
                 break;
             case 3:
-                searchNewProject();
+                searchNewProject(players.get(0));
                 break;
             case 4:
                 testProject();
@@ -194,7 +197,7 @@ public class Game {
 
             if ("LUZAK".equals(project.owner.character.toString())) {
                 //poprawka w porównywania dat (opóznienie nie większe niż tydzień czyli równe mniejsze tydzień)
-                if (project.deadLine.plusDays(7).isAfter(currentDay)||project.deadLine.plusDays(7).isEqual(currentDay)) {
+                if (project.deadLine.plusDays(7).isAfter(currentDay) || project.deadLine.plusDays(7).isEqual(currentDay)) {
                     if (!Generator.checkPercentegesChance(20)) penalty = project.penalty;
                 } else penalty = project.penalty;
             } else penalty = project.penalty;
@@ -236,13 +239,14 @@ public class Game {
         }
     }
 
-    private void searchNewProject() {
-        if (players.get(0).dayForLookingClient < 5) {
-            players.get(0).dayForLookingClient++;
-            System.out.println("Dzisiaj cały dzień poszukujesz nowych zleceń w internecie. Do znalezienia projektu potrzeba jeszcze " + (5 - players.get(0).dayForLookingClient) + " wywołania.");
-            endDay();
+    private void searchNewProject(Player player) {
+        if (!player.searchProject()) {
+            System.out.println("Dzisiaj cały dzień poszukujesz nowych zleceń w internecie. Do znalezienia projektu potrzeba jeszcze " + (5 - player.getDayForLookingClient()) + " wywołania.");
+        } else {
+            System.out.println("\nZnalezłeś nowy projekt. Sprawdź go jutro w dostępnych zleceniach!");
+            addNewProjeckt(player);
         }
-
+        endDay();
     }
 
     private void payOfficialFees() throws InterruptedException {
@@ -327,14 +331,12 @@ public class Game {
     }
 
 
-    private void checkNewProjeckt() {
-        if (players.get(0).dayForLookingClient == 5) {
-            players.get(0).dayForLookingClient = 0;
-            GameProject anotherOne = Generator.getRandomGameProject(currentDay);
-            Generator.getRandomClient().addProject(anotherOne);
-            addProjectToAvailable(anotherOne);
-            System.out.println("\nZnalezłeś nowy projekt. Sprawdź go jutro w dostępnych zleceniach!");
-        }
+    private void addNewProjeckt(Player player) {
+
+        GameProject anotherOne = Generator.getRandomGameProject(currentDay);
+        Generator.getRandomClient().addProject(anotherOne);
+        addProjectToAvailable(anotherOne);
+
     }
 
     //przygotowanie do dodawania projektów
@@ -351,7 +353,7 @@ public class Game {
     private void checkZus(int nextMonth) {
         int lastTermin = currentDay.lengthOfMonth() - currentDay.getDayOfMonth();
         //Awaryjna przypominajka dla gracza
-        if (lastTermin == 2&&!(players.get(0).countFeePerMonth==2)) {
+        if (lastTermin == 2 && !(players.get(0).countFeePerMonth == 2)) {
             System.out.println("\nOSTRZEŻENIE! Dwa dni do końca miesiąca. Jeśli nie poświęcisz wymaganych dni: " + (2 - players.get(0).countFeePerMonth) + " na rozliczenia z urzędami przegrasz!");
         }
         if (!(nextMonth == currentDay.getMonthValue()) && players.get(0).countFeePerMonth < 2) {
@@ -375,7 +377,6 @@ public class Game {
 
     private void endDay() {
         checkGameDuration(currentDay.plusDays(1));
-        checkNewProjeckt();
         currentDay = currentDay.plusDays(1);
     }
 
@@ -384,14 +385,14 @@ public class Game {
             LocalDate dateNow = dateOfPrize.get(i);
             //poprawka w porównywaniu dat (wartości a nie obiekty )
             if (dateNow.isEqual(currentDay)) {
-                System.out.println("Dostałeś przelew na konto w wysokości " + finishedProjects.get(i).reward + " za zakończony projekt "+finishedProjects.get(i).projectName);
+                System.out.println("Dostałeś przelew na konto w wysokości " + finishedProjects.get(i).reward + " za zakończony projekt " + finishedProjects.get(i).projectName);
                 players.get(0).setCash(players.get(0).getCash() + finishedProjects.get(i).reward);
             }
         }
         //zwalnianie pamięci w zmiennych listowych
         for (int i = 0; i < dateOfPrize.size(); i++) {
             LocalDate oldDate = dateOfPrize.get(i);
-            if(currentDay.isAfter(oldDate)){
+            if (currentDay.isAfter(oldDate)) {
                 finishedProjects.remove(i);
                 dateOfPrize.remove(i);
                 break;

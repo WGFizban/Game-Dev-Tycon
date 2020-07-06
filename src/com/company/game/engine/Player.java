@@ -1,11 +1,13 @@
 package com.company.game.engine;
 
+import com.company.game.engine.npc.*;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Player implements ProgrammingInterface {
+public class Player implements ProgrammingInterface,SearchingProjectInterface {
 
     static final String[] TECHNOLOGY = {"front-end", "backend", "baza danych", "mobile", "wordpress", "prestashop"};
     public static final Double DEFAULT_STARTING_CASH = 2000.00;
@@ -13,9 +15,17 @@ public class Player implements ProgrammingInterface {
     public String nickName;
     private Double cash;
     public List<Employee> myEmployee = new ArrayList<>();
+
+
+
     public List<GameProject> myProjects = new ArrayList<>();
     public int countFeePerMonth = 0;
-    public int dayForLookingClient = 0;
+
+    public int getDayForLookingClient() {
+        return dayForLookingClient;
+    }
+
+    private int dayForLookingClient = 0;
 
     public Player(String nickName) {
         this.nickName = nickName;
@@ -61,6 +71,15 @@ public class Player implements ProgrammingInterface {
             }
         }
         return isReady;
+    }
+
+    public boolean hasEmployee(Occupation occupation) {
+        if (myEmployee.size() > 0) {
+            for (Employee worker : myEmployee) {
+                if (worker.mainOccupation.equals(occupation)) return true;
+            }
+        }
+        return false;
     }
 
     public void showMyProjects() {
@@ -130,5 +149,17 @@ public class Player implements ProgrammingInterface {
             }
         }
         selectedProject.isReady();
+    }
+
+    @Override
+    public boolean searchProject() {
+        if (dayForLookingClient < MIN_SEARCHING_DAYS) {
+            dayForLookingClient++;
+            if (dayForLookingClient == MIN_SEARCHING_DAYS) {
+                dayForLookingClient = 0;
+                return true;
+            } else return false;
+        }
+        return false;
     }
 }

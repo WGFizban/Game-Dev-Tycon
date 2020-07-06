@@ -1,5 +1,8 @@
 package com.company.game.engine;
 
+import com.company.game.engine.npc.Client;
+import com.company.game.engine.npc.ClientCharacter;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +37,7 @@ public final class Generator {
 
         int minDay = 1, maxDay = 2, rowModyficator;
         List<Integer> randTechTime = new ArrayList<>();
-        int[][] percentagesForTechnologyTime = {{50, 100, 50, 0, 50, 100}, {100, 100, 100, 40, 70, 100}, {100, 100, 100, 50, 100, 100},};
+        int[][] percentagesForTechnologyTime = {{50, 100, 50, 0, 40, 40}, {100, 100, 100, 40, 70, 100}, {100, 100, 100, 50, 100, 100},};
         //{timeModyficatorTechnology,dayModyficatorDeadline} w 3 odmianach dla konkretcnych poziomów złożoności projektu}
         int[][] tableOfIntModyficator = {{0, 16}, {2, 8}, {4, 4},};
         // { penaltyModyficator, rewardModyficator }

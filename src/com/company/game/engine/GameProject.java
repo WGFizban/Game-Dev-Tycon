@@ -1,6 +1,8 @@
 package com.company.game.engine;
 
 
+import com.company.game.engine.npc.Client;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
