@@ -13,7 +13,7 @@ public class Tester extends Employee {
 
     @Override
     public boolean doYourWorkForPlayer(Player player) {
-        if ((countOfTesters(player) * 3) <= countOfProgrammers(player)&&player.myProjects.size()>0) {
+        if ((countOfTesters(player) * 3) <= countOfProgrammers(player) && player.myProjects.size() > 0) {
             for (GameProject project : player.myProjects) {
                 project.coderError = 0;
             }

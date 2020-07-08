@@ -5,7 +5,7 @@ import java.util.Scanner;
 public class Menu {
     String[] menuOptions;
 
-    public Menu(String[] myOptions) {
+    public Menu(String... myOptions) {
         menuOptions = myOptions;
     }
 
@@ -30,7 +30,7 @@ public class Menu {
     }
 
     public int selectOptions(int optionsLimit, String message) {
-        System.out.print(message + " ");
+        System.out.print("\n" + message + " ");
 
         int choice = checkChoose();
         while (choice >= optionsLimit || choice < 0) {
@@ -39,7 +39,8 @@ public class Menu {
         }
         return choice;
     }
-//zapobieganie wprowadzeniu znaków innych niż potrzebna liczba
+
+    //zapobieganie wprowadzeniu znaków innych niż potrzebna liczba
     private static int checkChoose() {
         Scanner input = new Scanner(System.in);
         try {

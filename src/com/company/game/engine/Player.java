@@ -7,15 +7,14 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Player implements ProgrammingInterface,SearchingProjectInterface {
+public class Player implements ProgrammingInterface, SearchingProjectInterface {
 
     static final String[] TECHNOLOGY = {"front-end", "backend", "baza danych", "mobile", "wordpress", "prestashop"};
-    public static final Double DEFAULT_STARTING_CASH = 2000.00;
+    public static final Double DEFAULT_STARTING_CASH = 10000.00;
 
     public String nickName;
     private Double cash;
     public List<Employee> myEmployee = new ArrayList<>();
-
 
 
     public List<GameProject> myProjects = new ArrayList<>();
@@ -91,6 +90,13 @@ public class Player implements ProgrammingInterface,SearchingProjectInterface {
                     "Technologie i czas " + project.daysForTechnology + "\n" +
                     "Spodziewana nagroda " + project.reward + " po " + project.timeOfReward + " dniach roboczych od ukończenia. Kara: " + project.penalty + "\n" +
                     "Błędy w kodzie: " + project.coderError + "\n");
+        }
+    }
+
+    public void showMyEmployee() {
+        for (int i = 0; i < myEmployee.size(); i++) {
+            Employee empl = myEmployee.get(i);
+            System.out.print("\n" + i + " " + empl);
         }
     }
 

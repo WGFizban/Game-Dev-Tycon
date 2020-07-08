@@ -14,12 +14,15 @@ Zaimplementowane i działające opcje:
 - Zakończenie w wypadku bankructwa lub nie uiszczenia opłat
 - alternatywne zakończenie gdy stan pieniędzy będzie 10x większy od stanu początkowego
 - oddawanie gotowych projektów (już działa nawet dla kilku przelewów na jeden dzień)
-- testowanie projektów w celu wyczyszczenia błędów
+- zatrudnianie i zwalnianie pracowników 
+- możliwość brania zleceń skomplikowanych po zatrudnieniu pracownika 
+- prosty generator pracowników
 
 JESZCZE NIE WSPIERANE:
-- dodawanie współpracowników
 - zlecanie kodu kolegom ze studiów
-- Wykonywanie skomplikowanych projektów przez gracza (z wyżej wymienionych powodów i przez ograniczenie "mobile"
+- losowanie technologii dla programistów
+- wykonywanie obowiązków przez pracowników (szczególnie przez programistów - generowanie przez nich błędów)
+
 
 
 

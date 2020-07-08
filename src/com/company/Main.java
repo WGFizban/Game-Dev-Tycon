@@ -10,38 +10,23 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
 
-   /*     Double mycost = 100.00;
-        Player player1 = new Player("koko");
-        Tester tester1 = new Tester("Franek", "Testujący", mycost, mycost, mycost);
-        Tester tester2 = new Tester("Jenusz", "Prprogramowany", mycost, mycost, mycost);
-        Programmer programista1 = new Programmer("Janusz", "Programista", mycost, mycost, mycost);
-        Dealer sprzedawca = new Dealer("sprzedawca", "s1", mycost, mycost, mycost);
 
-        System.out.println(player1.getCash() + "Obecna pensja");
-        tester1.hire(player1);
-        programista1.hire(player1);
-        programista1.hire(player1);
-        programista1.hire(player1);
-        programista1.hire(player1);
-        System.out.println("po zatrudnieniach " + player1.getCash() + "\n");
+ /*      // część testowa
+        Player player1 = new Player("Gracz testowy");
 
-        System.out.println("Moi pracownicy \n" + player1.myEmployee);
+        player1.myEmployee.add(Generator.getRandomEmployee(Occupation.PROGRAMMER));
+        player1.myEmployee.add(Generator.getRandomEmployee(Occupation.PROGRAMMER));
+        player1.myEmployee.add(Generator.getRandomEmployee(Occupation.TESTER));
+        player1.myEmployee.add(Generator.getRandomEmployee(Occupation.DEALER));*/
 
-        for (int i = 0; i <= 10; i++) {
-            System.out.println(sprzedawca.doYourWorkForPlayer(player1));
-        }*/
-
-
-
-
+        //właściwa gra
         Scanner input = new Scanner(System.in);
         System.out.println("Podaj Nick dla Twojego gracza");
         Player player1 = new Player(input.nextLine());
-
         Game myGame = new Game(player1);
 
         while (myGame.gameIsOn) {
-            myGame.startDay();
+            myGame.startDay(player1);
         }
     }
 }

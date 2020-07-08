@@ -1,6 +1,6 @@
 package com.company.game.engine;
 
-import com.company.game.engine.npc.Client;
+import com.company.game.engine.npc.*;
 import com.company.game.engine.npc.ClientCharacter;
 
 import java.time.LocalDate;
@@ -11,13 +11,18 @@ import java.util.concurrent.ThreadLocalRandom;
 //Generator jest zasymulowany statycznie
 public final class Generator {
 
-    static final String[] NAMES = {"Jan", "Marek", "Anna", "Krzysztof", "Karol", "Tomasz"};
+    static final String[] NAMES = {"Jan", "Marek", "Anna", "Krzysztof", "Karol", "Tomasz", "Paweł", "Piotr", "Wojciech", "Zofia", "Magda", "Jakub", "Alicja", "Weronika", "Kamil", "Kamila"};
     static final String[] SURNAMES = {"Poważny", "Luzacki", "Wyrozumiały", "Java", "Press", "Kosa"};
+    static final String[] WORKER_SURNAMES = {"Dokładny", "Wymyślny", "Pospieszny", "Coder", "Pospolity", "Dron"};
     static final String[] CLIENT_CHARACTER = {"LUZAK", "WYMAGAJACY", "SKRWL"};
     static final String[] PROJECT_COMPLEXITY = {"EASY", "MIDDLE", "HARD"};
 
     static final String[] PROJECT_FIRST_SEGMENT_NAME = {"Rozszerzenie ", "Nowy ", "Wydajniejszy ", "Sequel "};
     static final String[] PROJECT_LAST_SEGMENT_NAME = {"Allegro", "Sklep", "Matrix", "Fallout", "Simis City", "CITY SKYLINES"};
+
+    static final Double TESTER_MAIN_COST = 2000.00;
+    static final Double PROGRAMMER_MAIN_COST = 2400.00;
+    static final Double DEALER_MAIN_COST = 1200.00;
 
 
     //static final String [] TECHNOLOGY = {"front-end","backend","baza danych","mobile","wordpress","prestashop"};
@@ -91,6 +96,27 @@ public final class Generator {
 
         return new Client(NAMES[randName], SURNAMES[randSurname], ClientCharacter.valueOf(CLIENT_CHARACTER[randCharacter]));
     }
+
+
+    public static Employee getRandomEmployee(Occupation occupation) {
+        int randName = ThreadLocalRandom.current().nextInt(0, NAMES.length);
+        int randSurname = ThreadLocalRandom.current().nextInt(0, WORKER_SURNAMES.length);
+        double cost;
+
+        switch (occupation) {
+            case DEALER:
+                cost = DEALER_MAIN_COST;
+                return new Dealer(NAMES[randName], WORKER_SURNAMES[randSurname], cost, cost / 4, cost / 2);
+            case TESTER:
+                cost = TESTER_MAIN_COST;
+                return new Tester(NAMES[randName], WORKER_SURNAMES[randSurname], cost, cost / 4, cost / 2);
+            default:
+                cost = PROGRAMMER_MAIN_COST; //w późniejszej fazie koszty programistów zostaną zmienione (brakuje tu jeszcze parametrów losowych technologii które programisci umieją(będą to 3 losowe technologie))
+                return new Programmer(NAMES[randName], WORKER_SURNAMES[randSurname], cost, cost / 4, cost / 2);
+        }
+
+    }
+
 
     //szansa w procentach że coś się uda
     public static boolean checkPercentegesChance(int chance) {

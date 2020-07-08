@@ -13,6 +13,10 @@ public class Game {
     //data rozpoczęcia gry i ilosc dostepnych projektów
     static final LocalDate START_DATE = LocalDate.of(2020, 1, 1);
     static final int START_AVAILABLE_PROJECTS = 3;
+    //początkowa liczba dostępnych pracowników
+    static final int START_AVAILABLE_TESTERS = 1;
+    static final int START_AVAILABLE_PROGRAMMERS = 2;
+    static final int START_AVAILABLE_DEALER = 1;
 
 
     LocalDate currentDay;
@@ -22,6 +26,7 @@ public class Game {
 
     public List<Player> players = new ArrayList<>();
     public List<GameProject> availableProject = new ArrayList<>();
+    public List<Employee> availableEmployee = new ArrayList<>(); //lista do przechowywania dostępnych pracowników
     public List<Client> allClient = new ArrayList<>();
 
     //listy pamiętające daty i wielkości wypłat za gotowe projekty
@@ -33,14 +38,10 @@ public class Game {
     }
 
     //tworzenie menu
-    String[] dayOptions = {"Programuj", "Zobacz dostępne projekty", "Zobacz moje projekty", "Szukaj klientów/projektów", "Testuj kody", "Oddaj projekt", "Zarządzaj pracownikami", "Rozlicz urzędy", "Wyjdź z programu"};
-    String[] testOptions = {"Testuj swój kod", "Testuj kod pracowników", "testuj kod współpracowników"};
-    String[] projOptions = {"Wybierz projekt", "Wróć do menu"};
-    String[] emplOptions = {"Zatrudnij pracownika", "Zwolnij pracownika"};
-    Menu dayMenu = new Menu(dayOptions);
-    Menu testMenu = new Menu(testOptions);
-    Menu hireMenu = new Menu(emplOptions);
-    Menu projMenu = new Menu(projOptions);
+    Menu dayMenu = new Menu("Programuj", "Zobacz dostępne projekty", "Zobacz moje projekty", "Szukaj klientów/projektów", "Testuj kody", "Oddaj projekt", "Zarządzaj pracownikami", "Rozlicz urzędy", "Wyjdź z programu");
+    Menu testMenu = new Menu("Testuj swój kod", "Testuj kod pracowników", "testuj kod współpracowników");
+    Menu hireMenu = new Menu("Zatrudnij pracownika", "Zwolnij pracownika", "Zainwestuj w reklamy by szukać pracowników (300.00)", "Wróć do menu");
+    Menu projMenu = new Menu("Wybierz projekt", "Wróć do menu");
 
 
     public void startNewGame(Player player) {
@@ -63,15 +64,24 @@ public class Game {
             allClient.add(Generator.getRandomClient());
         }
         Generator.randomAddProjectToClient(availableProject, allClient);
+        //ustawienie początkowych pracowników
+        for (int i = 0; i < START_AVAILABLE_DEALER; i++) {
+            availableEmployee.add(Generator.getRandomEmployee(Occupation.DEALER));
+        }
+        for (int i = 0; i < START_AVAILABLE_TESTERS; i++) {
+            availableEmployee.add(Generator.getRandomEmployee(Occupation.TESTER));
+        }
+        for (int i = 0; i < START_AVAILABLE_PROGRAMMERS; i++) {
+            availableEmployee.add(Generator.getRandomEmployee(Occupation.PROGRAMMER));
+        }
 
     }
 
 
-    public void startDay() throws InterruptedException {
+    public void startDay(Player player) throws InterruptedException {
         System.out.println("\nJest " + formatDate.format(currentDay));
         checkIsTimeForReward(currentDay);
-        System.out.println("Twój stan konta: " + players.get(0).getCash());
-
+        System.out.println("Twój stan konta: " + player.getCash());
         mainAction(dayMenu.selectOptions());
     }
 
@@ -98,7 +108,8 @@ public class Game {
                 uploadReadyProject(players.get(0));
                 break;
             case 6:
-                System.out.println("Opcja nie została zaimplementowana");
+                //System.out.println("Opcja nie została zaimplementowana");
+                manageEmployee(players.get(0));
                 break;
             case 7:
                 payOfficialFees();
@@ -108,10 +119,51 @@ public class Game {
         }
     }
 
+    private void manageEmployee(Player player) throws InterruptedException {
+        switch (hireMenu.selectOptions()) {
+            case 0:
+                //zatrudnianie pracowników
+                showAvailableEmployee();
+                if (dayMenu.selectOptions(2, "Czy chcesz teraz zatrudnić pracowników?\n0 - Tak lub 1 - Inna opcja     Twój wybór:") == 1)
+                    manageEmployee(player);
+                else {
+                    int toHire = dayMenu.selectOptions(availableEmployee.size(), "Wybierz pracownika którego chcesz zatrudnić: ");
+                    availableEmployee.get(toHire).hire(player);
+                }
+                endDay();
+                break;
+            case 1: //zwalnianie pracowników
+                if (player.myEmployee.size() == 0) {
+                    System.out.println("Nie masz jeszcze żadnych pracowników by ich zwalniać! Wybierz inną opcję");
+                    manageEmployee(player);
+                } else {
+                    player.showMyEmployee();
+                    int toDismiss = dayMenu.selectOptions(player.myEmployee.size(), "Wybierz pracownika którego chcesz zwolnić");
+                    player.myEmployee.get(toDismiss).dismiss(player);
+                }
+                endDay();
+                break;
+            case 2:
+                //kampania reklamowa;
+                break;
+            case 3:
+                mainAction(dayMenu.selectOptions());
+                break;
+        }
+    }
+
+    private void showAvailableEmployee() {
+        System.out.println();
+        for (int i = 0; i < availableEmployee.size(); i++) {
+            Employee emp = availableEmployee.get(i);
+            System.out.println(i + " " + emp);
+        }
+    }
+
     private void uploadReadyProject(Player player) throws InterruptedException {
         //sprawdzanie posiadania projektów
         if (player.myProjects.size() == 0) {
-            System.out.println("Musisz POSIADAĆ Jakikolwiek projekt");
+            System.out.println("Musisz POSIADAĆ jakikolwiek projekt");
             mainAction(dayMenu.selectOptions());
             //sprawdzenie posiadania gotowego projektu
         } else if (!player.anyoneProjectIsReady()) {
@@ -244,7 +296,7 @@ public class Game {
             System.out.println("Dzisiaj cały dzień poszukujesz nowych zleceń w internecie. Do znalezienia projektu potrzeba jeszcze " + (5 - player.getDayForLookingClient()) + " wywołania.");
         } else {
             System.out.println("\nZnalezłeś nowy projekt. Sprawdź go jutro w dostępnych zleceniach!");
-            addNewProjeckt(player);
+            addNewAvailableProjeckt();
         }
         endDay();
     }
@@ -331,7 +383,7 @@ public class Game {
     }
 
 
-    private void addNewProjeckt(Player player) {
+    private void addNewAvailableProjeckt() {
 
         GameProject anotherOne = Generator.getRandomGameProject(currentDay);
         Generator.getRandomClient().addProject(anotherOne);
