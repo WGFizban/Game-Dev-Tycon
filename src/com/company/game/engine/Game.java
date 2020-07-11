@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class Game {
 
@@ -20,6 +21,7 @@ public class Game {
 
 
     LocalDate currentDay;
+    Player playerOnTurn;
     DateTimeFormatter formatDate = DateTimeFormatter.ofPattern("E dd.MM.yyyy");
 
     public boolean gameIsOn;
@@ -29,12 +31,8 @@ public class Game {
     public List<Employee> availableEmployee = new ArrayList<>(); //lista do przechowywania dostępnych pracowników
     public List<Client> allClient = new ArrayList<>();
 
-    //listy pamiętające daty i wielkości wypłat za gotowe projekty
-    public List<LocalDate> dateOfPrize = new ArrayList<>();
-    private List<GameProject> finishedProjects = new ArrayList<>();
-
-    public Game(Player player) {
-        startNewGame(player);
+    public Game() throws InterruptedException {
+        startNewGame();
     }
 
     //tworzenie menu
@@ -44,17 +42,31 @@ public class Game {
     Menu projMenu = new Menu("Wybierz projekt", "Wróć do menu");
 
 
-    public void startNewGame(Player player) {
-        players.add(player);
-        gameIsOn = true;
-        currentDay = START_DATE;
+    public void startNewGame() throws InterruptedException {
+        //ekran powitalny
+        System.out.println("Witaj w Game dev Tycon symulatorze firmy IT. Przygoda rozpoczyna się 1 stycznia 2020r\nPodejmuj mądre decyzje i nie zbankrutuj. Powodzenia!\n");
+
+        //wprowadzenie graczy
+        int isMorePlayer;
+        Scanner input = new Scanner(System.in);
+        do {
+
+            System.out.print("Podaj Nick dla gracza: ");
+            Player player = new Player(input.nextLine());
+            isMorePlayer = dayMenu.selectOptions(2, "Czy będzie więcej graczy?  0 - nie   1 - tak    wybierasz: ");
+            players.add(player);
+        } while (isMorePlayer == 1);
 
         //poczatkowe ustawienia
         setStartProporties();
-        //ekran powitalny
-        System.out.println("Witaj w Game dev Tycon " + player.nickName);
-        System.out.println("Zaraz rozpocznie się Twoja przygoda. Zaczniesz 1 stycznia 2020r. \nTwoja początkowa pensja: " + player.getCash() +
-                "\nPodejmuj mądre decyzje i nie zbankrutuj. Powodzenia!");
+
+        //start gry dla kazdego z graczy
+        while (gameIsOn) {
+            for (Player player : players) {
+                playerOnTurn = player;
+                startDay(playerOnTurn);
+            }
+        }
     }
 
     private void setStartProporties() {
@@ -74,15 +86,48 @@ public class Game {
         for (int i = 0; i < START_AVAILABLE_PROGRAMMERS; i++) {
             availableEmployee.add(Generator.getRandomEmployee(Occupation.PROGRAMMER));
         }
+        gameIsOn = true;
+        currentDay = START_DATE;
+
+        // część testowa
+
+        players.get(0).myEmployee.add(Generator.getRandomEmployee(Occupation.PROGRAMMER));
+        players.get(0).myEmployee.add(Generator.getRandomEmployee(Occupation.PROGRAMMER));
+        players.get(0).myEmployee.add(Generator.getRandomEmployee(Occupation.TESTER));
+        players.get(0).myEmployee.add(Generator.getRandomEmployee(Occupation.DEALER));
 
     }
 
 
     public void startDay(Player player) throws InterruptedException {
-        System.out.println("\nJest " + formatDate.format(currentDay));
+        if (!gameIsOn) return;
+
+        System.out.println("\nTura gracza " + player.nickName + "\nJest " + formatDate.format(currentDay));
         checkIsTimeForReward(currentDay);
+
+        //kod by prcowali pracownicy
+        employeeToWork(player);
+
         System.out.println("Twój stan konta: " + player.getCash());
+
+
         mainAction(dayMenu.selectOptions());
+    }
+
+    private void employeeToWork(Player player) {
+        if (!(currentDay.getDayOfWeek().toString().equals("SUNDAY")) && player.myEmployee.size() > 0) {
+            System.out.println("Twoi pracownicy pracują");
+            for (Employee employee : player.myEmployee) {
+                if (employee.mainOccupation.equals(Occupation.DEALER)) {
+                    if (employee.doYourWorkForPlayer(player)) {
+                        GameProject project = Generator.getRandomGameProject(currentDay);
+                        project.owner = Generator.getRandomClient();
+                        availableProject.add(project);
+                        System.out.println("Sprzedawca znalazł nowy projekt! sprawdź go w dostępnych zleceniach.");
+                    }
+                } else employee.doYourWorkForPlayer(player);
+            }
+        }
     }
 
 
@@ -99,17 +144,17 @@ public class Game {
                 showPlayerProject();
                 break;
             case 3:
-                searchNewProject(players.get(0));
+                searchNewProject(playerOnTurn);
                 break;
             case 4:
                 testProject();
                 break;
             case 5:
-                uploadReadyProject(players.get(0));
+                uploadReadyProject(playerOnTurn);
                 break;
             case 6:
                 //System.out.println("Opcja nie została zaimplementowana");
-                manageEmployee(players.get(0));
+                manageEmployee(playerOnTurn);
                 break;
             case 7:
                 payOfficialFees();
@@ -130,7 +175,7 @@ public class Game {
                     int toHire = dayMenu.selectOptions(availableEmployee.size(), "Wybierz pracownika którego chcesz zatrudnić: ");
                     availableEmployee.get(toHire).hire(player);
                 }
-                endDay();
+                endDay(playerOnTurn);
                 break;
             case 1: //zwalnianie pracowników
                 if (player.myEmployee.size() == 0) {
@@ -141,7 +186,7 @@ public class Game {
                     int toDismiss = dayMenu.selectOptions(player.myEmployee.size(), "Wybierz pracownika którego chcesz zwolnić");
                     player.myEmployee.get(toDismiss).dismiss(player);
                 }
-                endDay();
+                endDay(playerOnTurn);
                 break;
             case 2:
                 //kampania reklamowa;
@@ -200,7 +245,7 @@ public class Game {
                         addDateAndFinishedProject(currentDay.plusDays(daysForClient + player.myProjects.get(choice).timeOfReward), player.myProjects.get(choice));
                     }
                     player.myProjects.remove(choice);
-                    endDay();
+                    endDay(playerOnTurn);
                 }
             }
         }
@@ -208,8 +253,8 @@ public class Game {
     }
 
     private void addDateAndFinishedProject(LocalDate dateReward, GameProject project) {
-        dateOfPrize.add(dateReward);
-        finishedProjects.add(project);
+        playerOnTurn.dateOfPrizeForProject.add(dateReward);
+        playerOnTurn.finishedProjects.add(project);
     }
 
     private int additionalTimeForClient(GameProject project) {
@@ -262,7 +307,7 @@ public class Game {
     private void testProject() throws InterruptedException {
         switch (testMenu.selectOptions()) {
             case 0:
-                testPlayerProject(players.get(0));
+                testPlayerProject(playerOnTurn);
                 break;
             case 1:
                 System.out.println("Opcja nie została zaimplementowana");
@@ -286,7 +331,7 @@ public class Game {
             } else {
                 player.myProjects.get(choice).coderError = 0;
                 System.out.println("Cały dzień testujesz ale masz pewność że już napisany kod jest 100% poprawny");
-                endDay();
+                endDay(playerOnTurn);
             }
         }
     }
@@ -298,20 +343,20 @@ public class Game {
             System.out.println("\nZnalezłeś nowy projekt. Sprawdź go jutro w dostępnych zleceniach!");
             addNewAvailableProjeckt();
         }
-        endDay();
+        endDay(playerOnTurn);
     }
 
     private void payOfficialFees() throws InterruptedException {
-        if (players.get(0).countFeePerMonth == 2) {
+        if (playerOnTurn.countFeePerMonth == 2) {
             System.out.println("W tym miesiącu opłaciłeś już urzędy wymaganą ilość razy. ZUS jest Ci wdzięczny.\nWybierz inną opcję.");
             mainAction(dayMenu.selectOptions());
         } else {
             //opłata urzędów jako 5 % dwa razy w msc
-            players.get(0).setCash(players.get(0).getCash() - (players.get(0).getCash() * 0.05));
+            playerOnTurn.setCash(playerOnTurn.getCash() - (playerOnTurn.getCash() * 0.05));
             checkCash();
-            players.get(0).countFeePerMonth++;
-            System.out.println("Dzień papierkowej roboty. Dokonujesz opłat " + players.get(0).countFeePerMonth + " raz w tym miesiącu. Pobraliśmy wymagane opłaty.");
-            endDay();
+            playerOnTurn.countFeePerMonth++;
+            System.out.println("Dzień papierkowej roboty. Dokonujesz opłat " + playerOnTurn.countFeePerMonth + " raz w tym miesiącu. Pobraliśmy wymagane opłaty.");
+            endDay(playerOnTurn);
         }
 
 
@@ -331,11 +376,11 @@ public class Game {
 
                 int choice = dayMenu.selectOptions(availableProject.size(), "Podaj numer projektu który chcesz wybrać: ");
 
-                if (canAddProject(availableProject.get(choice), players.get(0))) {
-                    players.get(0).addProject(availableProject.get(choice));
+                if (canAddProject(availableProject.get(choice), playerOnTurn)) {
+                    playerOnTurn.addProject(availableProject.get(choice));
                     availableProject.remove(choice);
                     System.out.println("Do końca dnia cieszysz się z podpisanej umowy i nic nie robisz!");
-                    endDay();
+                    endDay(playerOnTurn);
                 } else {
                     System.out.println("Nie możesz podjąć się tego projektu ze względu na jego złożoność\n");
                     chooseFromAvailableProject();
@@ -352,24 +397,24 @@ public class Game {
 
 
     private void showPlayerProject() throws InterruptedException {
-        players.get(0).checkAndShowProject();
+        playerOnTurn.checkAndShowProject();
         mainAction(dayMenu.selectOptions());
     }
 
     private void goProgrammingPlayer() throws InterruptedException {
-        if (players.get(0).hasProject() && players.get(0).allProjectAreReady()) {
+        if (playerOnTurn.hasProject() && playerOnTurn.allProjectAreReady()) {
             System.out.println("Wszystkie Twoje projekty są gotowe. Pomyśl nad inną opcją.");
             mainAction(dayMenu.selectOptions());
 
-        } else if (players.get(0).hasProject()) {
+        } else if (playerOnTurn.hasProject()) {
 
-            players.get(0).checkAndShowProject();
+            playerOnTurn.checkAndShowProject();
 
-            int choice = dayMenu.selectOptions(players.get(0).myProjects.size(), "Wybierz projekt nad którym chcesz pracować:");
-            if (!players.get(0).myProjects.get(choice).ready && !(players.get(0).isOnlyMobile(players.get(0).myProjects.get(choice)))) {
-                players.get(0).programmingDay(players.get(0).myProjects.get(choice));
-                endDay();
-            } else if (players.get(0).isOnlyMobile(players.get(0).myProjects.get(choice))) {
+            int choice = dayMenu.selectOptions(playerOnTurn.myProjects.size(), "Wybierz projekt nad którym chcesz pracować:");
+            if (!playerOnTurn.myProjects.get(choice).ready && !(playerOnTurn.isOnlyMobile(playerOnTurn.myProjects.get(choice)))) {
+                playerOnTurn.programmingDay(playerOnTurn.myProjects.get(choice));
+                endDay(playerOnTurn);
+            } else if (playerOnTurn.isOnlyMobile(playerOnTurn.myProjects.get(choice))) {
                 System.out.println("Ten projekt wymaga jeszcze technologii mobilnej której nie potrafisz. Wracasz do menu. \nPomyśl nad zleceniem tej częsci komuś lub zatrudnij odpowiedniego pracownika.");
                 mainAction(dayMenu.selectOptions());
             } else {
@@ -405,48 +450,50 @@ public class Game {
     private void checkZus(int nextMonth) {
         int lastTermin = currentDay.lengthOfMonth() - currentDay.getDayOfMonth();
         //Awaryjna przypominajka dla gracza
-        if (lastTermin == 2 && !(players.get(0).countFeePerMonth == 2)) {
-            System.out.println("\nOSTRZEŻENIE! Dwa dni do końca miesiąca. Jeśli nie poświęcisz wymaganych dni: " + (2 - players.get(0).countFeePerMonth) + " na rozliczenia z urzędami przegrasz!");
+        if (lastTermin == 2 && !(playerOnTurn.countFeePerMonth == 2)) {
+            System.out.println("\nOSTRZEŻENIE! Dwa dni do końca miesiąca. Jeśli nie poświęcisz wymaganych dni: " + (2 - playerOnTurn.countFeePerMonth) + " na rozliczenia z urzędami przegrasz!");
         }
-        if (!(nextMonth == currentDay.getMonthValue()) && players.get(0).countFeePerMonth < 2) {
+        if (!(nextMonth == currentDay.getMonthValue()) && playerOnTurn.countFeePerMonth < 2) {
             System.out.println("\nW tym miesiącu zapomniałeś dwukrotnie rozliczyś się z urzędami. Wpada kontrola i zamykasz firmę z długami.");
-            players.get(0).setCash(0.0);
-        } else if ((!(nextMonth == currentDay.getMonthValue())) && players.get(0).countFeePerMonth == 2) {
-            players.get(0).countFeePerMonth = 0;
+            playerOnTurn.setCash(0.0);
+        } else if ((!(nextMonth == currentDay.getMonthValue())) && playerOnTurn.countFeePerMonth == 2) {
+            playerOnTurn.countFeePerMonth = 0;
             System.out.println("\nRozpoczyna się nowy miesiąc. Dobrze że pamiętałeś o Zus :) ");
         }
     }
 
     public void checkCash() {
-        if (players.get(0).getCash() <= 0) {
+        if (playerOnTurn.getCash() <= 0) {
             gameIsOn = false;
-            System.out.println("Właśnie zbankrutowałeś. Koniec Gry!!!");
-        } else if (players.get(0).getCash() >= (10 * Player.DEFAULT_STARTING_CASH)) {
+            System.out.println("Gracz " + playerOnTurn + " właśnie zbankrutował. Koniec Gry!!!");
+        } else if (playerOnTurn.getCash() >= (10 * Player.DEFAULT_STARTING_CASH)) {
             gameIsOn = false;
-            System.out.println("Zarobiłeś 10x więcej pieniędzy niż miałeś na początku gry. WYGRYWASZ!!! GRATULUJĘ!");
+            System.out.println("Gracz " + playerOnTurn + " zarobił 10x więcej pieniędzy niż miał na początku gry. WYGRYWA!!! GRATULUJĘ!");
         }
     }
 
-    private void endDay() {
+    private void endDay(Player actuallyPlayer) {
         checkGameDuration(currentDay.plusDays(1));
-        currentDay = currentDay.plusDays(1);
+        if (actuallyPlayer.equals(players.get(players.size() - 1))) {
+            currentDay = currentDay.plusDays(1);
+        }
     }
 
     private void checkIsTimeForReward(LocalDate currentDay) {
-        for (int i = 0; i < dateOfPrize.size(); i++) {
-            LocalDate dateNow = dateOfPrize.get(i);
+        for (int i = 0; i < playerOnTurn.dateOfPrizeForProject.size(); i++) {
+            LocalDate dateNow = playerOnTurn.dateOfPrizeForProject.get(i);
             //poprawka w porównywaniu dat (wartości a nie obiekty )
             if (dateNow.isEqual(currentDay)) {
-                System.out.println("Dostałeś przelew na konto w wysokości " + finishedProjects.get(i).reward + " za zakończony projekt " + finishedProjects.get(i).projectName);
-                players.get(0).setCash(players.get(0).getCash() + finishedProjects.get(i).reward);
+                System.out.println("Dostałeś przelew na konto w wysokości " + playerOnTurn.finishedProjects.get(i).reward + " za zakończony projekt " + playerOnTurn.finishedProjects.get(i).projectName);
+                playerOnTurn.setCash(playerOnTurn.getCash() + playerOnTurn.finishedProjects.get(i).reward);
             }
         }
         //zwalnianie pamięci w zmiennych listowych
-        for (int i = 0; i < dateOfPrize.size(); i++) {
-            LocalDate oldDate = dateOfPrize.get(i);
+        for (int i = 0; i < playerOnTurn.dateOfPrizeForProject.size(); i++) {
+            LocalDate oldDate = playerOnTurn.dateOfPrizeForProject.get(i);
             if (currentDay.isAfter(oldDate)) {
-                finishedProjects.remove(i);
-                dateOfPrize.remove(i);
+                playerOnTurn.finishedProjects.remove(i);
+                playerOnTurn.dateOfPrizeForProject.remove(i);
                 break;
             }
         }

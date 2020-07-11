@@ -21,6 +21,7 @@ public class Dealer extends Employee implements SearchingProjectInterface {
     public boolean searchProject() {
         if (searchingDayes < MIN_SEARCHING_DAYS) {
             searchingDayes++;
+            System.out.println("Sprzedawca szuka klientów dla Ciebie");
             if (searchingDayes == MIN_SEARCHING_DAYS) {
                 searchingDayes = 0;
                 return true;

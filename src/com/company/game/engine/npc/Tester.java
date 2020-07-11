@@ -17,6 +17,7 @@ public class Tester extends Employee {
             for (GameProject project : player.myProjects) {
                 project.coderError = 0;
             }
+            System.out.println("Tester poprawił wszystkie Twoje projekty");
             return true;
         }
         return false;

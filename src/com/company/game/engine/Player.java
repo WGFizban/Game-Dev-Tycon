@@ -4,6 +4,7 @@ import com.company.game.engine.npc.*;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,9 +16,11 @@ public class Player implements ProgrammingInterface, SearchingProjectInterface {
     public String nickName;
     private Double cash;
     public List<Employee> myEmployee = new ArrayList<>();
-
-
     public List<GameProject> myProjects = new ArrayList<>();
+
+    //listy pamiętające daty i wielkości wypłat za gotowe projekty
+    public List<LocalDate> dateOfPrizeForProject = new ArrayList<>();
+    public List<GameProject> finishedProjects = new ArrayList<>();
     public int countFeePerMonth = 0;
 
     public int getDayForLookingClient() {
