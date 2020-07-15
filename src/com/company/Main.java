@@ -7,7 +7,9 @@ public class Main {
     public static void main(String[] args) throws Exception {
 
     //właściwa gra
-        Game myGame = new Game();
+       Game myGame = new Game();
+
+
 
     }
 }

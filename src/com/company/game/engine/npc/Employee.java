@@ -28,17 +28,17 @@ public abstract class Employee {
     }
 
     public void dismiss(Player player) {
-        System.out.println("\nZwolniłeś pracownika " + this.name + " " + this.surname + " pracującego jako " + this.mainOccupation);
+        System.out.println("Zwolniłeś pracownika " + this.name + " " + this.surname + " pracującego jako " + this.mainOccupation);
         player.myEmployee.remove(this);
         player.setCash(player.getCash() - costOfDismissal);
     }
 
     public void getSalaryFromPlayer(Player player) {
         if (player.getCash() < salary) {
-            System.out.println("\nNie masz wystarczającej ilości gotówki by zapłacić pracownikowi " + this.name + " " + this.surname + " Twój " + this.mainOccupation + " odchodzi z Twojej firmy :( ");
+            System.out.println("Nie masz wystarczającej ilości gotówki by zapłacić pracownikowi " + this.name + " " + this.surname + " Twój " + this.mainOccupation + " odchodzi z Twojej firmy :( ");
             player.myEmployee.remove(this);
         } else {
-            System.out.println("\nWypłacono pensje miesięczna dla pracownika " + this.mainOccupation + " " + this.name + " " + this.surname);
+            System.out.println("Wypłacono pensje miesięczna dla pracownika " + this.mainOccupation + " " + this.name + " " + this.surname);
             player.setCash(player.getCash() - salary);
         }
     }

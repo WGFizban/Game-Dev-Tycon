@@ -19,6 +19,7 @@ Zaimplementowane i działające opcje:
 - wykonywanie swoich obowiązków przez testerów i sprzedawców
 - możliwość brania zleceń skomplikowanych po zatrudnieniu pracownika 
 - prosty generator pracowników
+- poprawiono  - teraz pracownicy normalnie otrzymują swoją pensję (lub odchodzą)
 
 JESZCZE NIE WSPIERANE:
 - zlecanie kodu kolegom ze studiów
